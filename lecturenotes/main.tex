@@ -109,7 +109,7 @@
 \fancypagestyle{plain}{ %
   \fancyhf{} % remove everything
   \renewcommand{\headrulewidth}{0pt} % remove lines as well
-  \renewcommand{\footrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt} 
 }
 
 \fancypagestyle{fancybook}{%
@@ -135,6 +135,22 @@
 \begin{document}                        % End of preamble, start of text.
 \frontmatter                            % only in book class (roman page #s)
 \maketitle                              % Print title page.
+
+\vspace*{\fill}
+\begin{tcolorbox}[colback=gold!15, colframe=gold!80!black, title={\textbf{Draft Notice}}, fonttitle=\bfseries\large, center title]
+\textbf{These lecture notes are a work in progress and may contain errors, typos, or incomplete sections.}
+
+\medskip
+
+If you find any mistakes or have suggestions for improvement, please open an issue on the course repository.
+
+\medskip
+
+\hfill \textit{Last updated: \today}
+\end{tcolorbox}
+\vspace*{\fill}
+\newpage
+
 {\hypersetup{linkcolor=black}
 \tableofcontents
 }        % Print table of contents

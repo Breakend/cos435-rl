@@ -416,6 +416,16 @@ V^*(s) = \max_{a \in \Aset} \left[ R(s, a) + \gamma \sum_{s' \in \Sset} \T(s' \m
 The Bellman optimality equation characterizes $V^*$ as a \textbf{fixed point}: if we apply the right-hand side to $V^*$, we get $V^*$ back. Finding this fixed point gives us the optimal value function, from which we can extract the optimal policy.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Categorizing RL Agents}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+RL agents can be categorized along several dimensions. \textbf{Value-based} methods learn a value function and derive the policy from it; examples include Q-learning and DQN \citep{mnih2015human}. \textbf{Policy-based} methods learn the policy directly without explicitly representing the value function; examples include REINFORCE \citep{williams1992simple} and PPO \citep{schulman2017proximal}. \textbf{Actor-critic} methods learn both a value function (the critic) and a policy (the actor), using the value function to reduce variance in policy updates.
+
+Another important distinction is between \textbf{model-free} and \textbf{model-based} approaches. Model-free methods learn directly from experience without building an explicit model of the environment's dynamics. Model-based methods learn a model of the transition function and reward function, then use planning algorithms to derive a policy.
+
+Finally, the nature of the state and action spaces matters greatly for algorithm design. \textbf{Tabular} methods represent value functions as tables with one entry per state (or state-action pair), giving exact solutions but requiring small, discrete state spaces. \textbf{Function approximation} methods use parameterized functions (often neural networks) to represent values or policies, enabling generalization across states but introducing approximation error and potential instability.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Example: Grid World MDP}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -487,15 +497,6 @@ This stochastic dynamics makes the problem interesting: the agent cannot simply 
 
 How many deterministic policies exist for this small MDP? Each of the 16 states needs an action assignment, with 4 choices per state, giving $|\Aset|^{|\Sset|} = 4^{16} = 4{,}294{,}967{,}296$ deterministic policies---over 4 billion! Even for this tiny MDP, brute-force enumeration is impossible. We need efficient algorithms.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Categorizing RL Agents}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-RL agents can be categorized along several dimensions. \textbf{Value-based} methods learn a value function and derive the policy from it; examples include Q-learning and DQN \citep{mnih2015human}. \textbf{Policy-based} methods learn the policy directly without explicitly representing the value function; examples include REINFORCE \citep{williams1992simple} and PPO \citep{schulman2017proximal}. \textbf{Actor-critic} methods learn both a value function (the critic) and a policy (the actor), using the value function to reduce variance in policy updates.
-
-Another important distinction is between \textbf{model-free} and \textbf{model-based} approaches. Model-free methods learn directly from experience without building an explicit model of the environment's dynamics. Model-based methods learn a model of the transition function and reward function, then use planning algorithms to derive a policy.
-
-Finally, the nature of the state and action spaces matters greatly for algorithm design. \textbf{Tabular} methods represent value functions as tables with one entry per state (or state-action pair), giving exact solutions but requiring small, discrete state spaces. \textbf{Function approximation} methods use parameterized functions (often neural networks) to represent values or policies, enabling generalization across states but introducing approximation error and potential instability.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Value Iteration}
@@ -512,7 +513,7 @@ V_k(s) = \max_a \left[ R(s, a) + \gamma \sum_{s'} \T(s' \mid s, a) V_{k-1}(s') \
 \]
 As $k \to \infty$, this converges to the true optimal value function $V^*$.
 
-\subsection{The Bellman Optimality Operator}
+\subsection{The Bellman Optimality Operator} 
 
 \begin{definition}[Bellman Optimality Operator]
 The \textbf{Bellman optimality operator} $\mathcal{B}: \R^{|\Sset|} \to \R^{|\Sset|}$ is defined as:
