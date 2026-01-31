@@ -505,8 +505,6 @@ How many deterministic policies exist for this small MDP? Each of the 16 states 
 
 Given an MDP $(\Sset, \Aset, \T, R, \gamma)$ with known dynamics, how do we compute the optimal policy $\pi^*$? \textbf{Value iteration} is a dynamic programming algorithm that computes the optimal value function by iteratively applying the Bellman optimality operator \citep{bellman1957dynamic}.
 
-\subsection{The Key Idea} 
-
 Think of $V_k(s)$ as the optimal value if the agent has exactly $k$ steps remaining to act. With no steps remaining, there is no opportunity to collect future reward, so $V_0(s) = 0$ for non-terminal states (terminal states retain their fixed values). For general $k$, the optimal $k$-step value uses optimal $(k{-}1)$-step values:
 \[
 V_k(s) = \max_a \left[ R(s, a) + \gamma \sum_{s'} \T(s' \mid s, a) V_{k-1}(s') \right]
