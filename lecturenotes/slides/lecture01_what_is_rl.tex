@@ -1,0 +1,1832 @@
+% Lecture 1: What is Reinforcement Learning?
+% COS 435 / ECE 433 -- Peter Henderson
+% With material from Ben Eysenbach, David Silver (UCL), and Emma Brunskill (Stanford CS234)
+\documentclass[aspectratio=169, 11pt]{beamer}
+
+% Use custom dark theme
+\usepackage{beamerthemerlnotes}
+
+% Packages
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,calc,fit,backgrounds,arrows.meta}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{hyperref}
+
+% Math commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Sset}{\mathcal{S}}
+\newcommand{\Aset}{\mathcal{A}}
+\newcommand{\T}{\mathcal{T}} 
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+% Title information
+\title{Introduction to Reinforcement Learning}
+\subtitle{Lecture 1: What is RL?}
+\author{Peter Henderson}
+\institute{COS 435 / ECE 433}
+\date{}
+
+\begin{document}
+
+% ============================================================
+% TITLE
+% ============================================================
+\begin{frame}[plain]
+    \titlepage\vspace{-1em}
+    {\tiny Thanks to helpful slides/notes by Ben Eysenbach, Emma Brunskill, Ben Van Roy, and David Silver.}
+\end{frame} 
+
+% ============================================================
+% AGENDA
+% ============================================================
+% \begin{frame}{Today's Agenda}
+%     \large
+%     \begin{enumerate}
+%         \item What is Reinforcement Learning?
+%         \item How is RL Different from Other Approaches?
+%         \item What Makes RL Hard?
+%         \item Inside an RL Agent
+%         \item Where Does RL Come From?
+%         \item Applications of RL
+%     \end{enumerate}
+% \end{frame}
+
+% ============================================================
+\section{What is Reinforcement Learning?}
+% ============================================================
+
+\begin{frame}{What is Reinforcement Learning? Definitions.}
+    \vspace{-0.5em}
+    \begin{block}{Kaelbling, Littman \& Moore (1996)}
+        ``Reinforcement learning is the problem faced by an agent that learns behavior through trial-and-error interactions with a dynamic environment.''
+    \end{block}
+
+    \vspace{0.5em}
+
+    \begin{block}{Sutton \& Barto (2018)}
+        ``more focused on goal-directed learning from interaction than are other approaches to machine learning.''
+    \end{block}
+
+    \vspace{0.5em}
+    
+    \begin{block}{Van Roy (2024)}
+        ``The subject of reinforcement learning addresses the design of agents that learn to achieve specified goals.''
+    \end{block}
+\end{frame}
+
+\begin{frame}{What is Reinforcement Learning? Definitions.}
+    \begin{center}
+        \includegraphics[width=\textwidth]{eraofexperience.png}
+    \end{center}
+\end{frame}
+
+
+
+% ============================================================
+\section{A brief history of RL}
+% ============================================================
+
+\begin{frame}{Many Faces of Reinforcement Learning}
+    \vspace{-0.5em}
+    \begin{center}
+        \includegraphics[width=.5\textwidth]{figures/lecture01/venndiagram.png}
+    \end{center}
+    \vspace{-0.5em}
+    \normalsize
+    RL is inherently interdisciplinary --- it draws on optimization theory, mathematics, neuroscience, psychology, and control theory.
+\end{frame}
+
+\begin{frame}{History of RL: Many Threads}
+    \vspace{-0.3em}
+    Modern reinforcement learning weaves together \textbf{two threads} (among others):
+    \vspace{0.5em}
+    \begin{enumerate}
+        \item \textbf{Optimal control} (1950s--): e.g., dynamic programming. \emph{Largely no learning} --- complete model assumed.
+        \vspace{0.3em}
+        \item \textbf{Trial-and-error learning} (1890s--): from psychology and neuroscience (Thorndike, Skinner, Pavlov) \emph{Learning from interaction in animals.} 
+        \vspace{0.3em}
+    \end{enumerate}
+    \vspace{0.5em}
+    \begin{block}{}
+        \small
+        Many threads came together in the late from mid 1950s to late 1980s to form the field as we know it, with still lots of cross-over RL researchers across fields. \emph{Source: Sutton \& Barto, Ch.\,1.6.}
+    \end{block}
+\end{frame}
+
+\begin{frame}{History of RL: Psychology}
+    \small
+    \textbf{Psychology} --- trial-and-error learning in animals:
+    \vspace{0.3em}
+    \begin{itemize}
+        \item \textbf{Edward Thorndike} (1898): ``Law of Effect.'' Puzzle-box experiments with cats; responses that produce a satisfying effect become more likely, discomforting effect less likely.
+        \item \textbf{B.\,F.\,Skinner} (1930s): Skinner box --- buttons (actions), lights/speakers (observations), food/shocks (rewards). Operant conditioning.
+        \item \textbf{Ivan Pavlov} (1890s): demonstrated classical conditioning by training dogs to salivate at the sound of a bell, tying the sound to food.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Skinner also wrote a novel about a society run by calculated reinforcement/conditioning of its citizens}
+    \begin{columns}[T]
+        \column{0.35\textwidth}
+        \begin{center}
+            \includegraphics[height=4.2cm]{figures/lecture01/walden2.png}
+        \end{center}
+        \column{0.6\textwidth}
+        \small
+        \textbf{B.\,F.\,Skinner}, \emph{Walden Two} (1948): a community run by behavioral engineering.
+        \vspace{0.3em}
+        \begin{itemize}
+            \item Positive reinforcement only; behavior shaped by rewards and environment to build a utopian society.
+            \item Controversial: free will, control, scaling behaviorism to society.
+        \end{itemize}
+        \vspace{0.2em}
+        \emph{Early thought experiment on societal and ethical consequences of large-scale algorithmic reinforcement of human behavior. Something to think about.}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{History of RL: Neuroscience}
+    \small
+    \textbf{Neuroscience} --- RL as a model of learning in the brain:
+    \vspace{0.3em}
+    \begin{itemize}
+        \item Dopamine as reward prediction error; TD learning in the brain.
+        \item Impacts of reward pathways on behavior, including depression, addiction, etc.
+        \item Many neuroscientists do interdisciplinary work in RL. RL venues often have strong representation from neuroscience, psychology.
+    \end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{History of RL: Optimal Control and Dynamic Programming}
+    \begin{columns}[T]
+        \column{0.58\textwidth}
+        \small
+        \textbf{Optimal control} (late 1950s): design a controller to minimize cost over time.
+        \vspace{0.2em}
+        \begin{itemize}
+            \item \textbf{James Clerk Maxwell} (1868): centrifugal governor --- early control mechanism in hardware; spinning balls regulate engine speed.
+            \item \textbf{Richard Bellman}: Bellman equation, \textbf{dynamic programming} (1957). Discrete stochastic $\Rightarrow$ \textbf{MDPs}. 
+            \item \textbf{Ron Howard} (1960): policy iteration for MDPs.
+            \item DP remains a backbone of RL, but also a key tool in other fields like macroeconomics.
+        \end{itemize}
+        \vspace{0.2em}
+
+        \column{0.38\textwidth}
+        % \vspace{0.2em}
+        \IfFileExists{figures/lecture01/bellman.png}{%
+            \begin{center}
+                \includegraphics[width=.8\columnwidth]{figures/lecture01/bellman.png}
+                \tiny\textcolor{textgray}{R.\,E.\,Bellman.}
+            \end{center}
+        }{%
+            \begin{center}
+                \fcolorbox{accentsepia}{darkgray}{\parbox{0.9\columnwidth}{\centering\small\vspace{0.8cm}Add \texttt{bellman.jpg}\\\scriptsize(e.g.\ Mactutor History of Math)\vspace{0.8cm}}}
+            \end{center}
+        }
+    \end{columns}
+\end{frame}
+
+\begin{frame}{History of RL: Control Theory and RL}
+    \small
+    \textbf{Connection:} Control theory and RL address the same goal --- an agent/controller acting in an environment to optimize long-term outcome --- but are formulated differently:
+    \vspace{0.4em}
+    \begin{itemize}
+        \item \textbf{Control theory}: often \emph{continuous} time (integrals), \emph{known} and \emph{deterministic} dynamics.
+        \item \textbf{RL}: often \emph{discrete} time (summations), \emph{unknown} or \emph{stochastic} dynamics.
+    \end{itemize}
+    \vspace{0.3em}
+
+\end{frame}
+
+\begin{frame}{History of RL: Trial-and-Error in Early AI}
+    \begin{columns}[T]
+        \column{0.57\textwidth}
+        \begin{itemize}
+            \vspace{-2em}
+            \item \textbf{Minsky et al.} (1954): Stochastic Neural Analog Reinforcement Calculator (SNARC) built at Princeton!
+            \item 40 Hebb synapses, each holding the probability that signal comes in one input, with a hacked together mechanism for memory, including a surplus Minneapolis-Honeywell C-1 gyroscopic autopilot from a B-24 bomber.
+            \item Provide a reinforcement signal to update the network and use it to solve a simulated maze, like reinforcement learning research with rats.
+        \end{itemize}
+
+        \column{0.42\textwidth}
+        \vspace{-0.1em}
+        \begin{center}
+            \includegraphics[height=3cm]{figures/lecture01/snarc.png}
+            \par\vspace{0.05em}\scriptsize\textcolor{textgray}{The last remaining neuron of SNARC.}
+        \end{center}
+        \vspace{0.2em}
+
+    \end{columns}
+\end{frame}
+
+\begin{frame}{History of RL: Arthur Samuel's Checkers (1959)}
+    \begin{columns}[T]
+        \column{0.58\textwidth}
+        \small
+        \begin{itemize}
+            \item \textbf{Arthur Samuel} at IBM: checkers program that \textbf{learned} to beat its creator.
+            \item First program to learn from \textbf{self-play}.
+            \item Key ideas later formalized as \textbf{temporal-difference learning}.
+            \item Coined the term \textbf{``machine learning''}.
+        \end{itemize}
+        \vspace{0.2em}
+        \scriptsize\textit{``Programming computers to learn from experience should eventually eliminate the need for much of this detailed programming effort.''} --- Arthur L.\ Samuel, \textit{Some Studies in Machine Learning Using the Game of Checkers}, 3 IBM J.\ Res.\ \& Dev.\ 535 (1959).
+
+        \column{0.38\textwidth}
+        \begin{center}
+            \includegraphics[height=3.8cm]{figures/lecture01/arthursamuel.png}
+            \par\vspace{0.05em}\scriptsize\textcolor{textgray}{Arthur Samuel (1901--1990).}
+        \end{center}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{History of RL: The 1970s--80s Revival}
+    \begin{columns}[T]
+        \column{0.58\textwidth}
+        \small
+        After a quiet period, RL research revived:
+        \vspace{0.2em}
+        \begin{itemize}
+            \item \textbf{Harry Klopf} (1972--82): early temporal-difference learning ideas, learning from trial-and-error.
+            \item \textbf{Sutton \& Barto} (1981--88): \textbf{TD learning}, TD($\lambda$), actor-critic.
+            \item \textbf{Chris Watkins} (1989): \textbf{Q-learning} --- model-free, off-policy.
+            \item More!
+        \end{itemize}
+        \vspace{0.2em}
+        By the 1990s the three threads merged into modern RL.
+
+        \column{0.38\textwidth}
+        \begin{center}
+            \IfFileExists{figures/lecture01/td_gammon.png}{%
+                \includegraphics[width=.8\columnwidth]{figures/lecture01/suttonandbarto.png}
+                \par\vspace{0.05em}\scriptsize\textcolor{textgray}{Sutton \& Barto}
+            }{%
+                \fcolorbox{accentsepia}{darkgray}{\parbox{0.8\columnwidth}{\centering\small\vspace{0.6cm}Sutton \& Barto\vspace{0.6cm}}}
+            }
+        \end{center}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{History of RL: Deep RL Revolution (2013--present)}
+    \small
+    \vspace{-2em}
+    \begin{columns}[T]
+        \column{0.52\textwidth}
+        \textbf{2013: DQN (DeepMind)}
+        \begin{itemize}
+            \item Deep net + Q-learning, \textbf{raw pixels}
+            \item Superhuman on many Atari games
+        \end{itemize}
+        \begin{center}
+            \includegraphics[height=1.8cm]{figures/lecture01/breakout_static.png}
+            \par\scriptsize\textcolor{textgray}{Atari Breakout (DQN).}
+        \end{center}
+        \vspace{0.2em}
+
+        \column{0.45\textwidth}
+        \textbf{2016: AlphaGo}
+        \begin{itemize}
+            \item Beat Lee Sedol at Go ($10^{170}$ positions)
+            \item \textbf{AlphaZero} (2017): zero human data
+        \end{itemize}
+        \vspace{0.2em}
+        \begin{center}
+            \includegraphics[height=1.8cm]{figures/lecture01/go_game_record.png}
+            \par\scriptsize\textcolor{textgray}{AlphaGo vs Lee Sedol.}
+        \end{center}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{RL + Language Models: The RL+LLM Era (2020s--present)}
+    \small
+    \begin{columns}[T]
+        \column{0.45\textwidth}
+        \textbf{The RL+LLM Pipeline}
+        \begin{enumerate}
+            \item Pre-train LLM on text
+            \item Collect human preferences or create RL environments
+            \item Fine-tune with RL to maximize the reward signal using the LLM as the starting point.
+        \end{enumerate}
+        \vspace{0.1em}
+        \textbf{E.g.,}: ChatGPT, GPT-4; Claude; Llama 2/3; Gemini; DeepSeek-R1; etc.
+
+        \column{0.52\textwidth}
+        \vspace{0.1em}
+        \begin{center}
+            \includegraphics[height=2.4cm]{figures/lecture01/chatgpt_interface.png}
+        \end{center}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Other Real-world RL Uses}
+    \small
+    \vspace{-2em}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \begin{center}
+            \includegraphics[height=2.4cm]{figures/lecture01/fusion.png}
+            \par\vspace{0.05em}\scriptsize\textcolor{textgray}{RL for fusion control (e.g., Degrave et al., 2022).}
+        \end{center}
+        \begin{center}
+            \includegraphics[height=2.4cm]{figures/lecture01/IRS.png}
+            \par\vspace{0.05em}\scriptsize\textcolor{textgray}{Believe it or not, bandit algorithms at IRS.}
+        \end{center}
+        \column{0.48\textwidth}
+        \begin{center}
+            \includegraphics[height=2.4cm]{figures/lecture01/rlchips.png}
+            \par\vspace{0.05em}\scriptsize\textcolor{textgray}{RL for chip design.}
+        \end{center}
+        \begin{center}
+            \includegraphics[height=2.4cm]{figures/lecture01/robot.png}
+            \par\vspace{0.05em}\scriptsize\textcolor{textgray}{RL for robots.}
+        \end{center}
+    \end{columns}
+    \vspace{0.2em}
+\end{frame}
+
+% ============================================================
+\section{How is RL different? What makes it hard? Why now?}
+% ============================================================
+
+\begin{frame}{How is RL Different from Other Approaches?}
+    \normalsize
+    As you will see, you can reformulate many methods \emph{to} and \emph{from} the RL paradigm --- but RL is typically distinct:
+    \vspace{0.5em}
+    \begin{itemize}
+        \item \textbf{vs.\ supervised learning}: No labels for the ``right'' action; only a reward signal. Your actions affect the data you see next.
+        \item \textbf{vs.\ control theory}: Dynamics and rewards are typically \alert{unknown}; we learn from interaction, not a given model.
+        \item \textbf{vs.\ plain optimization}: We optimize over \emph{sequences} of decisions with delayed consequences, under uncertainty.
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}{What Makes RL Hard? Why Haven't We Solved It Yet?}
+    \normalsize
+    Four core challenges (we will revisit these later):
+    \vspace{0.4em}
+    \begin{enumerate}
+        \item \textbf{Exploration} --- How to gather useful experience?
+        \item \textbf{Delayed consequences} --- Which past actions caused the reward? (credit assignment)
+        \item \textbf{Sample efficiency} --- How to learn with limited data?
+        \item \textbf{Reward specification} --- How to define ``good'' behavior?
+    \end{enumerate}
+
+\end{frame}
+
+\begin{frame}{Exploration vs Exploitation}
+    \large
+    The fundamental tradeoff in RL:
+
+    \vspace{0.5em}
+
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \textbf{Exploitation}
+        \normalsize
+        \begin{itemize}
+            \item Use what you know
+            \item Take the best known action
+            \item Greedy, safe
+        \end{itemize}
+
+        \column{0.48\textwidth}
+        \large\textbf{Exploration}
+        \normalsize
+        \begin{itemize}
+            \item Try new things
+            \item Gather information
+            \item Risky, but might find better
+        \end{itemize}
+    \end{columns}
+
+    \vspace{0.6em}
+
+    \begin{exampleblock}{Example}
+        \normalsize
+        Restaurant choice: go to your favorite, or try something new that may or may not be better?
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}{Credit Assignment}
+    \large
+    \textbf{Problem:} Which actions led to the reward?
+
+    \vspace{0.6em}
+
+    \normalsize
+    \begin{itemize}
+        \item Rewards are often \alert{delayed}
+        \item A chess game has thousands of moves but one outcome
+        \item How do we know which moves were good?
+    \end{itemize}
+
+    \vspace{0.6em}
+
+    \begin{block}{The Credit Assignment Problem}
+        Determining how much each past action contributed to the current reward.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Sample Efficiency}
+    \large
+    \textbf{Problem:} RL often requires \alert{lots} of data
+
+    \vspace{0.6em}
+
+    \normalsize
+    \begin{itemize}
+        \item AlphaGo: millions of games of self-play
+        \item Atari: billions of frames
+        \item OpenAI Dactyl: 13,000 years of simulated experience
+    \end{itemize}
+
+    \vspace{0.6em}
+
+    \begin{alertblock}{Challenge}
+        Real-world interaction is expensive, slow, and sometimes dangerous. How can we learn efficiently?
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Reward Specification}
+    \large
+    \textbf{Problem:} Specifying the ``right'' reward is hard, will optimize and find weird solutions.
+    \normalsize
+
+    \vspace{0.3em}
+
+    \textbf{Examples:}
+    \begin{itemize}\setlength\itemsep{0pt}
+        \item \href{https://www.youtube.com/watch?v=mf9w6pz_tfQ}{[Video]} Hit the target with the baseball. You assume, throwing the ball...
+        \item \href{https://www.youtube.com/watch?v=tlOIHko8ySg}{[Video]} Win at this racing game... By finishing the race?
+        \item Win a capture the flag cybersecurity challenge, but successfully hacking... the evaluation docker instance?
+    \end{itemize}
+
+    \vspace{0.2em}
+
+    The reward defines the problem. A poorly-specified reward leads to \alert{unintended behavior} --- the agent optimizes what you asked for, not what you meant.
+\end{frame}
+
+
+\begin{frame}{Why is Now an Exciting Time to Work on RL?}
+    \small
+    \begin{itemize}
+        \item \textbf{RL + large models}: Large pre-trained models provide a useful starting point, enabling RL to work much more efficiently for open-ended domains.
+        \item \textbf{Real-world impact}: Fusion control, chip design, data center cooling, robotics, healthcare, recommendation systems. RL is moving from games and sims into deployed systems.
+        \item \textbf{Open problems}: Sample efficiency, safe exploration, reward design, and scaling RL to complex, long-horizon tasks are unsolved; there is lots of room to contribute.
+        \item \textbf{Understanding self-driven intelligence}: Importantly, RL is also about a fundamental science of learning from experience, and general artificial intelligence, which still cannot compete with the sample efficiency and generalizabilty of human learning. 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Course Goals}
+    \begin{block}{}
+        This course will give you the foundations to understand, implement, and extend modern RL algorithms and to engage with these challenges. As well as begin to engage you in thinking about the latest frontier research problems in RL.
+    \end{block}
+\end{frame}
+
+\section{Discussion - What are some areas/applications of RL that you are most excited about?}
+
+\begin{frame}{Course Logistics}
+    \small
+    \begin{itemize}
+        \item \textbf{Participation} --- 15\% \\
+        Starting next week: Google form with in-class polling questions; breakout discussions on assigned papers; should submit reading reflection on the assigned papers with the marked up pdf of the paper.
+        \vspace{0.4em}
+        \item \textbf{Problem sets} --- 15\% \\
+        3 assignments, due every other week starting in two weeks; small theory problems.
+        \vspace{0.4em}
+        \item \textbf{Programming assignments} --- 20\% \\
+        3 assignments, starting in two weeks; small programming tasks.
+        \vspace{0.4em}
+        \item \textbf{Final project} --- 50\% \\
+        Biggest one! Research project on a topic in RL; aim for academic workshop-level quality.
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Getting in the Course}
+    \small
+    Fill out this Google Form if you're waiting, can't make any promises, but raised the cap: \href{https://forms.gle/5siGARuazffRtFqu5}{https://forms.gle/5siGARuazffRtFqu5}\\
+    \vspace{0.3em}
+    Please drop ASAP if you're not likely to take it so that we can let others in.\\
+    \vspace{0.3em}
+    No formal auditing, but can sit in on lectures if there are seats.
+\end{frame}
+
+
+% ============================================================
+\section{Summary}
+% ============================================================
+
+\begin{frame}{Course Roadmap}
+    \large
+    This course will try to get very quickly (after policy-based RL) into advanced topics, often touching on RL with large langauge models. We will have a classic paper and a newer paper for dicussion each week.
+
+    \vspace{0.4em}
+
+    \normalsize
+    \begin{enumerate}
+        \item \textbf{RL Basics}: bandits, policy and value iteration
+        \item \textbf{Value-Based RL}: Q-learning, DQN, and extensions
+        \item \textbf{Policy-Based RL}: REINFORCE, PPO, stability and convergence
+        \item \textbf{Model-Based vs Model-Free RL}: when to learn a model
+        \item \textbf{Advanced Topics}: actor-critic methods (SAC, TD3), reward specification
+        \item \textbf{Frontiers}: RLHF, offline RL, multi-agent RL
+    \end{enumerate}
+
+    \vspace{0.4em}
+
+    \begin{block}{Philosophy}
+        \normalsize
+        Ramp up from scratch to engaging with the \alert{frontiers} of RL research in one semester, with emphasis on function approximation and deep RL.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Resources}
+
+    Resources will be posted after the class for the next week. 
+
+\end{frame}
+
+
+\section{Break - 10 minutes}
+
+\section{The Agent-Environment Interface}
+
+
+
+\begin{frame}{The Agent-Environment Interface}
+    \begin{center}
+    \begin{tikzpicture}[
+        node distance=3cm,
+        box/.style={draw=accentsepia, rounded corners=8pt, minimum width=2.8cm, minimum height=1.2cm, align=center, fill=darkgray, text=textwhite, line width=2pt},
+        arrow/.style={-{Stealth[length=3.5mm, width=2.5mm]}, very thick, color=accentsepia}
+    ]
+        \node[box] (agent) {\textbf{Agent}\\\small$\pi(a \mid s)$};
+        \node[box, right=4.5cm of agent] (env) {\textbf{Environment}\\\small$T(s' \mid s, a)$};
+
+        \draw[arrow] ([yshift=0.35cm]agent.east) -- node[above, text=textwhite] {\textbf{action} $a_t$} ([yshift=0.35cm]env.west);
+        \draw[arrow] ([yshift=-0.35cm]env.west) -- node[below, text=textwhite] {\textbf{state} $s_{t+1}$, \textbf{reward} $r_{t+1}$} ([yshift=-0.35cm]agent.east);
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.3em}
+
+    At each discrete time step $t$:
+    \begin{enumerate}
+        \item Agent observes state $s_t$ and selects action $a_t$ via policy $\pi$
+        \item Environment transitions to $s_{t+1}$ via $T(s_{t+1} \mid s_t, a_t)$
+        \item Reward function emits $r_{t+1}$; agent uses $(s_t, a_t, r_{t+1}, s_{t+1})$ to update
+    \end{enumerate}
+
+    \vspace{0.3em}
+
+    \small
+    \textcolor{textgray}{Convention: $r_{t+1}$ is the reward received \textit{after} taking action $a_t$ (Sutton \& Barto).}
+\end{frame}
+
+\begin{frame}{Reward as a Separate Function}
+    \begin{center}
+    \begin{tikzpicture}[
+        node distance=3cm,
+        box/.style={draw=accentsepia, rounded corners=8pt, minimum width=2.8cm, minimum height=1.2cm, align=center, fill=darkgray, text=textwhite, line width=2pt},
+        arrow/.style={-{Stealth[length=3.5mm, width=2.5mm]}, very thick, color=accentsepia}
+    ]
+        \node[box] (agent) {\textbf{Agent}\\\small$\pi(a \mid s)$};
+        \node[box, right=4.5cm of agent, yshift=1cm] (dynamics) {\textbf{Dynamics}\\\small$T(s' \mid s, a)$};
+        \node[box, right=4.5cm of agent, yshift=-1cm] (reward) {\textbf{Reward}\\\small$r(s, a, s')$};
+
+        % Agent -> Dynamics (action) - goes up and right
+        \draw[arrow] ([yshift=0.4cm]agent.east) -- node[above, text=textwhite] {\textbf{action} $a_t$} ([yshift=0.3cm]dynamics.west);
+        % Dynamics -> Agent (state) - comes back below the action arrow
+        \draw[arrow] ([yshift=-0.3cm]dynamics.west) -- node[below, text=textwhite] {\textbf{state} $s_{t+1}$} ([yshift=0.15cm]agent.east);
+        % Dynamics -> Reward (state for reward computation)
+        \draw[arrow] (dynamics.south) -- node[right, text=textwhite] {$s_{t+1}$} (reward.north);
+        % Reward -> Agent (reward)
+        \draw[arrow] (reward.west) -- node[below, text=textwhite] {\textbf{reward} $r_{t+1}$} ([yshift=-0.35cm]agent.east);
+    \end{tikzpicture}
+    \end{center} 
+ 
+    \vspace{0.3em}
+    
+    Conceptually can think of reward as separate from the environment and its dynamics since we might add things like curiousity bonuses, etc. 
+\end{frame}
+
+\begin{frame}{Key Components}
+    \large
+    \begin{itemize}
+        \item \textbf{State} $s \in \Sset$: the current situation
+        \vspace{0.3em}
+        \item \textbf{Action} $a \in \Aset$: what the agent can do
+        \vspace{0.3em}
+        \item \textbf{Reward} $r(s, a) \in \R$: scalar feedback signal
+        \vspace{0.3em}
+        \item \textbf{Transition dynamics} $T(s' \mid s, a)$: how the environment evolves
+        \vspace{0.3em}
+        \item \textbf{Policy} $\pi(a \mid s)$: the agent's strategy
+    \end{itemize}
+
+    \vspace{0.6em}
+
+    \normalsize
+    \begin{block}{Key Assumption}
+        Both the reward function $r$ and dynamics $T$ are \alert{unknown} to the agent. Experience is organized into \textbf{episodes} (trajectories): $\tau = (s_0, a_0, r_1, s_1, a_1, r_2, \ldots)$
+
+    \end{block}
+\end{frame}
+
+\begin{frame}{The Objective}
+    \large
+    \textbf{Goal:} Maximize expected cumulative reward
+
+    \vspace{0.4em}
+
+    \begin{center}
+    \Large
+    $\displaystyle\max_\pi \E_\pi\left[\sum_{t=0}^{T} r(s_t, a_t)\right]$
+    \end{center}
+
+    % \vspace{0.3em}
+
+    % \normalsize
+    % With \alert{discounting} \& infinite horizon:
+    % \enspace $\displaystyle\max_\pi \E_\pi\left[\sum_{t=0}^{\infty} \gamma^t r(s_t, a_t)\right]$
+    % \enspace where $\gamma \in [0,1)$.
+
+    % \vspace{0.2em}
+
+\end{frame}
+
+
+\begin{frame}{Rewards}
+    \begin{center}
+    \large
+    \textit{``All goals can be described by the maximisation\\of expected cumulative reward.''}
+
+    \vspace{0.2em}
+
+    \small --- David Silver
+    \end{center}
+
+    \vspace{0.5em}
+
+    \normalsize
+    \textbf{Examples of reward signals:}
+    \begin{itemize}
+        \item \textbf{Helicopter}: $+$reward for desired trajectory, $-$reward for crashing
+        \item \textbf{Chess}: $+1$ win, $-1$ loss, $0$ otherwise
+        \item \textbf{Robot walking}: $+$forward progress, $-$falling
+        \item \textbf{Portfolio management}: profit at each step
+    \end{itemize}
+
+    \vspace{0.5em}
+
+    \begin{alertblock}{Is this always true?}
+        Specifying the ``right'' reward is one of the hardest problems in RL.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{The Discount Factor $\gamma$}
+    \large
+    How much weight do we put on rewards at different time steps?
+
+    \vspace{0.3em}
+
+    \normalsize
+    Do you care more about getting high rewards \alert{now} or in the \alert{future}?
+
+    \vspace{0.5em}
+
+    \large
+    Can also look at shorter temporal distances, \alert{discounting} the future rewards:
+\begin{center}
+     \enspace $\displaystyle\max_\pi \E_\pi\left[\sum_{t=0}^{\infty} \gamma^t r(s_t, a_t)\right]$
+\end{center}
+
+    \enspace where $\gamma \in [0,1)$.
+
+\end{frame}
+
+\begin{frame}{Visualizing the Discount Factor}
+    \begin{columns}
+        \column{0.55\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[scale=0.8]
+            % Axes
+            \draw[-{Stealth}, thick, accentsepia] (0,0) -- (6.5,0) node[right, text=textwhite] {$t$};
+            \draw[-{Stealth}, thick, accentsepia] (0,0) -- (0,4.5) node[above, text=textwhite] {$\gamma^t$};
+
+            % Tick marks
+            \foreach \x in {1,2,3,4,5,6} {
+                \draw[textgray] (\x,0.1) -- (\x,-0.1) node[below, text=textwhite, font=\tiny] {\x};
+            }
+            \foreach \y/\ylabel in {1/0.25, 2/0.5, 3/0.75, 4/1.0} {
+                \draw[textgray] (0.1,\y) -- (-0.1,\y) node[left, text=textwhite, font=\tiny] {\ylabel};
+            }
+
+            % gamma = 0.5 (decays fast)
+            \draw[thick, accentgold] plot[smooth] coordinates {
+                (0,4) (1,2) (2,1) (3,0.5) (4,0.25) (5,0.125) (6,0.0625)
+            };
+            \node[text=accentgold, font=\small] at (2.5,2.5) {$\gamma = 0.5$};
+
+            % gamma = 0.9 (decays slower)
+            \draw[thick, accentsepia!80] plot[smooth] coordinates {
+                (0,4) (1,3.6) (2,3.24) (3,2.92) (4,2.62) (5,2.36) (6,2.13)
+            };
+            \node[text=accentsepia, font=\small] at (4,3.5) {$\gamma = 0.9$};
+
+            % gamma = 0.99 (almost flat)
+            \draw[thick, textwhite] plot[smooth] coordinates {
+                (0,4) (1,3.96) (2,3.92) (3,3.88) (4,3.84) (5,3.80) (6,3.77)
+            };
+            \node[text=textwhite, font=\small] at (4.5,4.2) {$\gamma = 0.99$};
+        \end{tikzpicture}
+        \end{center}
+
+        \column{0.45\textwidth}
+        \large
+        \textbf{Key observations:}
+        \normalsize
+        \begin{itemize}
+            \item Higher weights on near-term rewards
+            \item Lower weights on long-term rewards
+        \end{itemize}
+
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Interpreting the Discount Factor}
+    \large
+    \textbf{Rule of thumb:} $\gamma$ corresponds to reasoning $\frac{1}{1-\gamma}$ steps ahead
+
+    \vspace{0.5em}
+
+    \normalsize
+    \begin{center}
+    \begin{tabular}{cc}
+        \toprule
+        \textbf{Discount $\gamma$} & \textbf{Effective Horizon} \\
+        \midrule
+        $0.5$ & $\frac{1}{1-0.5} = 2$ steps \\[0.3em]
+        $0.9$ & $\frac{1}{1-0.9} = 10$ steps \\[0.3em]
+        $0.99$ & $\frac{1}{1-0.99} = 100$ steps \\[0.3em]
+        $0.999$ & $\frac{1}{1-0.999} = 1000$ steps \\
+        \bottomrule
+    \end{tabular}
+    \end{center}
+
+    \vspace{0.5em}
+
+    \begin{block}{Why does this work?}
+        The weights $\gamma^t$ resemble a geometric distribution with parameter $\gamma$.
+
+        Such a distribution has expected value $\frac{1}{1-\gamma}$.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Why Discount? Reasons for $\gamma < 1$}
+    \large
+    \begin{enumerate}
+        \item \textbf{Mathematical convenience}
+        \normalsize
+        \begin{itemize}
+            \item Ensures the sum $\sum_{t=0}^{\infty} \gamma^t r_t$ is finite
+            \item Required for infinite horizon problems
+        \end{itemize}
+
+        \vspace{0.3em}
+
+        \item \large\textbf{Uncertainty about the future}
+        \normalsize
+        \begin{itemize}
+            \item Model might be wrong far into future
+            \item Episode might terminate unexpectedly
+        \end{itemize}
+
+        \vspace{0.3em}
+
+        \item \large\textbf{Preference for sooner rewards}
+        \normalsize
+        \begin{itemize}
+            \item ``A bird in the hand is worth two in the bush''
+            \item Models economic time preference
+        \end{itemize}
+    \end{enumerate}
+
+    \vspace{0.3em}
+
+    \begin{alertblock}{Note}
+        Because $\gamma^t \to 0$ for large $t$, truncating the sum has little effect in practice.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Human Discounting: Not Quite Exponential}
+    \vspace{-0.3em}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[scale=0.6]
+            % Axes
+            \draw[-{Stealth}, thick, accentsepia] (0,0) -- (6.5,0) node[right, text=textwhite] {$t$};
+            \draw[-{Stealth}, thick, accentsepia] (0,0) -- (0,4.2) node[above, text=textwhite] {weight};
+
+            % Exponential discounting (gamma = 0.9)
+            \draw[thick, accentsepia!80] plot[smooth, domain=0:6, samples=50] (\x, {3.8*0.85^\x});
+            \node[text=accentsepia, font=\scriptsize, align=left] at (4.5,3) {Exponential\\$\gamma^t$};
+
+            % Hyperbolic discounting
+            \draw[thick, accentgold] plot[smooth, domain=0:6, samples=50] (\x, {3.8/(1+1.5*\x)});
+            \node[text=accentgold, font=\scriptsize, align=left] at (2.2,1.5) {Hyperbolic\\$\frac{1}{1+kt}$};
+        \end{tikzpicture}
+        \end{center}
+
+        \column{0.5\textwidth}
+        \small
+        \textbf{Humans exhibit hyperbolic discounting:}
+        \begin{itemize}\setlength\itemsep{0pt}
+            \item Steeper drop for near-term
+            \item Flatter for distant future
+            \item Leads to \alert{time inconsistency}
+        \end{itemize}
+
+        \vspace{0.3em}
+
+        \textbf{Example:}
+        \begin{itemize}\setlength\itemsep{0pt}
+            \item Prefer \$100 today over \$110 tomorrow
+            \item But prefer \$110 in 31 days over \$100 in 30 days
+        \end{itemize}
+    \end{columns}
+
+    \vspace{0.2em}
+
+    \begin{block}{RL uses exponential discounting}
+        \small Makes sure there is \textbf{time consistency}: optimal policy doesn't change as time passes.
+    \end{block}
+\end{frame}
+
+% ============================================================
+\section{The MDP Formalism}
+% ============================================================
+
+
+\begin{frame}{The Markov Decision Process (MDP)}
+    \large
+    \textbf{MDP:} The formal mathematical framework for RL
+
+    \vspace{0.3em}
+
+    \begin{block}{Markov Decision Process}
+        \normalsize
+        An MDP is a tuple $(\Sset, \Aset, T, R, \gamma)$:
+        \begin{itemize}\setlength\itemsep{0pt}
+            \item $\Sset$: State space (all possible situations)
+            \item $\Aset$: Action space (all possible actions)
+            \item $T(s'|s,a)$: Transition dynamics (how environment evolves)
+            \item $R(s,a)$: Reward function (scalar feedback)
+            \item $\gamma \in [0,1)$: Discount factor
+        \end{itemize}
+    \end{block}
+
+    \vspace{0.2em}
+
+    \small
+    \begin{block}{Key Assumption in RL}
+        Both $T$ and $R$ are \alert{unknown} --- the agent must learn from interaction.
+    \end{block}
+\end{frame}
+
+
+\begin{frame}{The Markov Property}
+    \large
+    \begin{block}{Markov Property}
+        The future depends only on the \alert{present}, not the past.
+    \end{block}
+
+    \vspace{0.3em}
+
+    \normalsize
+    \begin{center}
+    $T(s_{t+1} | s_t, s_{t-1}, \ldots, s_0) = T(s_{t+1} | s_t)$
+    \end{center}
+
+    \vspace{0.3em}
+
+    \textbf{Why:} The current state contains all relevant information for predicting the future.
+
+    \vspace{0.3em}
+
+    \begin{exampleblock}{Examples}
+        \begin{itemize}\setlength\itemsep{0pt}
+            \item Chess: board position is Markov
+            \item Blackjack: need to track cards played (not Markov with just current hand, but can reformulate to be Markov)
+        \end{itemize}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}{Return: Cumulative Discounted Reward}
+    \large
+    The \textbf{return} $G_t$ is the cumulative discounted reward from time $t$:
+
+    \vspace{0.2em}
+
+    \normalsize
+    $G_t = r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + \cdots = \sum_{k=0}^{\infty} \gamma^k r_{t+k+1}$
+
+    \vspace{0.3em}
+
+    \textbf{The return is a random variable} --- depends on policy $\pi$, dynamics $T$, and rewards $R$.
+
+\end{frame}
+
+\begin{frame}{Value Functions}
+    \normalsize
+    \textbf{State-Value Function} $V^\pi(s)$: Expected return starting from $s$, following $\pi$
+
+    \small
+    $V^\pi(s) = \E_\pi[G_t | s_t = s]$ \quad \textit{``How good is it to be in state $s$?''}
+
+    \vspace{0.4em}
+
+    \normalsize
+    \textbf{Action-Value Function} $Q^\pi(s,a)$: Expected return starting from $s$, taking $a$, then following $\pi$
+
+    \small
+    $Q^\pi(s,a) = \E_\pi[G_t | s_t = s, a_t = a]$ \quad \textit{``How good is it to take action $a$ in state $s$?''}
+
+    \vspace{0.4em}
+
+    \begin{block}{Relationship}
+        $V^\pi(s) = \sum_a \pi(a|s) Q^\pi(s,a)$ \quad (For deterministic $\pi$: $V^\pi(s) = Q^\pi(s, \pi(s))$)
+    \end{block}
+\end{frame}
+
+\begin{frame}{Optimal Value Functions and Policy}
+    \large
+    The \textbf{optimal value functions} are the best achievable:
+
+    \vspace{0.2em}
+
+    \normalsize
+    $V^*(s) = \max_\pi V^\pi(s) \qquad Q^*(s,a) = \max_\pi Q^\pi(s,a)$
+
+    \vspace{0.3em}
+
+    \begin{block}{Key Result}
+        Given $Q^*$, the optimal policy is simple: $\pi^*(s) = \argmax_a Q^*(s,a)$
+    \end{block}
+
+    \vspace{0.3em}
+
+    \large
+    \alert{Finding $Q^*$ or $V^*$ is the core of many RL algorithms!}
+\end{frame}
+
+\begin{frame}{Bellman Equations}
+    \normalsize
+    Value functions satisfy a \alert{recursive} relationship:
+
+    \vspace{0.1em}
+
+    \begin{center}
+    \textit{Value now = Immediate reward + Discounted future value}
+    \end{center}
+
+    \vspace{0.2em}
+
+    \small
+    \begin{block}{Bellman Expectation Equation (for policy $\pi$)}
+        $V^\pi(s) = \sum_a \pi(a|s) \left[ R(s,a) + \gamma \sum_{s'} T(s'|s,a) V^\pi(s') \right]$
+    \end{block}
+
+    \vspace{0.2em}
+
+    \begin{block}{Bellman Optimality Equation}
+        $V^*(s) = \max_a \left[ R(s,a) + \gamma \sum_{s'} T(s'|s,a) V^*(s') \right]$
+    \end{block}
+
+
+\end{frame}
+
+
+\begin{frame}{Categorizing RL Agents}
+    \begin{center}
+    \begin{tikzpicture}[scale=0.55]
+        \def\r{3.5}
+        % Draw circles with overlap
+        \draw[accentsepia!60, line width=2pt, fill=accentsepia, fill opacity=0.1]
+            (-2.0, 0) circle (\r);
+        \draw[accentsepia!60, line width=2pt, fill=accentsepia, fill opacity=0.1]
+            (2.0, 0) circle (\r);
+        % Category titles - positioned in non-overlapping regions
+        \node[text=textwhite, font=\bfseries\large, align=center] at (-3.5, 1.8) {Value\\Based};
+        \node[text=textwhite, font=\bfseries\large, align=center] at (3.5, 1.8) {Policy\\Based};
+        % Actor-Critic in the overlap
+        \node[text=accentgold, font=\bfseries, align=center] at (0, 1.0) {Actor-\\Critic};
+        % Algorithm examples - positioned clearly within each region
+        \node[text=textgray, font=\small, align=center] at (-3.5, -1.2) {Q-learning\\DQN};
+        \node[text=textgray, font=\small, align=center] at (3.5, -1.2) {REINFORCE\\PPO};
+        \node[text=textgray, font=\small, align=center] at (0, -1.0) {A2C, SAC\\TD3};
+    \end{tikzpicture}
+    \end{center}
+
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \centering
+        \large\textbf{Model-Free}\normalsize
+
+        Learn directly from experience
+
+        (most of this course)
+
+        \column{0.48\textwidth}
+        \centering
+        \large\textbf{Model-Based}\normalsize
+
+        Learn a model, then plan
+
+        (DreamervX, many robotics settings)
+    \end{columns}
+\end{frame}
+
+% TODO Questions
+% TODO: break 10 minutes
+
+\begin{frame}{RL Terminology: State and Action Spaces}
+    \normalsize
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \textbf{State Spaces}
+        \begin{itemize}
+            \item \textbf{Discrete/Finite}: Countable states (e.g., board positions in chess)
+            \item \textbf{Continuous}: $\Sset \subseteq \R^n$ (e.g., robot joint angles)
+            \item \textbf{Tabular}: Small discrete $\Sset$ --- can store $V(s)$ for every $s$ in a table
+        \end{itemize}
+
+        \column{0.48\textwidth}
+        \textbf{Action Spaces}
+        \begin{itemize}
+            \item \textbf{Discrete}: Finite choices (e.g., left/right/jump)
+            \item \textbf{Continuous}: $\Aset \subseteq \R^m$ (e.g., torques, forces)
+            \item \textbf{Control}: Often implies continuous actions/states (from control theory)
+        \end{itemize}
+    \end{columns}
+
+    \vspace{0.4em}
+
+    \begin{block}{Why This Matters}
+        \begin{itemize}
+            \item \textbf{Tabular methods}: Exact solutions, but don't scale to large/continuous spaces
+            \item \textbf{Function approximation}: Use neural nets to generalize across states --- required for most real problems
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+% ============================================================
+\section{Computing Optimal Policies: Dynamic Programming}
+% ============================================================
+
+\begin{frame}{How Do We Find the Optimal Policy in Tabular MDPs?} 
+    \large
+    Given an MDP $(\Sset, \Aset, T, R, \gamma)$, how do we compute $\pi^*$?
+
+    \vspace{0.4em}
+
+    \normalsize
+    \textbf{Two classic dynamic programming algorithms:}
+    \vspace{0.3em}
+    \begin{enumerate}
+        \item \textbf{Policy Iteration}: Evaluate a policy, then improve it. Repeat.
+        \item \textbf{Value Iteration}: Iteratively compute optimal values directly.
+    \end{enumerate}
+
+    \vspace{0.4em}
+
+    \begin{alertblock}{Assumption}
+        These algorithms assume we \alert{know} the MDP (dynamics $T$ and rewards $R$). Later we'll learn methods that don't require this.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Example: Grid World MDP}
+    \begin{columns}[T]
+        \column{0.52\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[scale=1.0]
+            \def\cellsize{0.9}
+            % Fill all cells with base color first
+            \foreach \x in {0,1,2,3} {
+                \foreach \y in {0,1,2,3} {
+                    \fill[darkgray] (\x*\cellsize, \y*\cellsize) rectangle +(\cellsize, \cellsize);
+                }
+            }
+            % Goal state (top-right) - (3,3)
+            \fill[accentsepia!50] (3*\cellsize, 3*\cellsize) rectangle +(\cellsize, \cellsize);
+            % Hazard states - (1,2) and (2,1)
+            \fill[red!40] (1*\cellsize, 2*\cellsize) rectangle +(\cellsize, \cellsize);
+            \fill[red!40] (2*\cellsize, 1*\cellsize) rectangle +(\cellsize, \cellsize);
+            % Draw grid lines on top
+            \draw[accentsepia, line width=1pt, step=\cellsize] (0,0) grid (4*\cellsize, 4*\cellsize);
+            % Labels inside cells
+            \node[text=accentgold, font=\bfseries] at (3*\cellsize+\cellsize/2, 3*\cellsize+\cellsize/2) {$+10$};
+            \node[text=red!90, font=\small\bfseries] at (1*\cellsize+\cellsize/2, 2*\cellsize+\cellsize/2) {$-5$};
+            \node[text=red!90, font=\small\bfseries] at (2*\cellsize+\cellsize/2, 1*\cellsize+\cellsize/2) {$-5$};
+            \node[text=cyan, font=\bfseries] at (\cellsize/2, \cellsize/2) {S};
+            % Axis labels
+            \foreach \i in {0,1,2,3} {
+                \node[text=textgray, font=\tiny] at (-0.25, \i*\cellsize+\cellsize/2) {\i};
+                \node[text=textgray, font=\tiny] at (\i*\cellsize+\cellsize/2, -0.25) {\i};
+            }
+        \end{tikzpicture}
+        \end{center}
+
+        \column{0.48\textwidth}
+        \small
+        \begin{itemize}
+            \item \textbf{States:} $\Sset = \{(x,y) : x,y \in \{0,1,2,3\}\}$
+            \item[] \hspace{1em} 16 grid positions
+            \item \textbf{Actions:} $\Aset = \{\uparrow, \downarrow, \leftarrow, \rightarrow\}$
+            \item \textbf{Rewards:}
+            \begin{itemize}
+                \item[\textcolor{accentgold}{$\bullet$}] Goal $(3,3)$: $+10$
+                \item[\textcolor{red!80}{$\bullet$}] Hazards: $-5$
+                \item[\textcolor{textgray}{$\bullet$}] Step cost: $-0.04$
+            \end{itemize}
+            \item \textbf{Discount:} $\gamma = 0.9$
+        \end{itemize}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Grid World: Stochastic Dynamics}
+    \vspace{-0.3em}
+    \begin{columns}[T]
+        \column{0.42\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[scale=0.85]
+            % Center cell
+            \node[draw=accentsepia, fill=darkgray, minimum size=1cm, line width=1.5pt] (center) at (0,0) {};
+            \node[text=cyan, font=\scriptsize\bfseries] at (0,0) {Agent};
+            % Intended direction (up) - 80%
+            \draw[-{Stealth[length=2.5mm]}, very thick, accentgold] (0, 0.5) -- (0, 1.3);
+            \node[text=accentgold, font=\scriptsize\bfseries] at (0.4, 1.1) {80\%};
+            % Perpendicular (left) - 10%
+            \draw[-{Stealth[length=2mm]}, thick, textgray] (-0.5, 0) -- (-1.2, 0);
+            \node[text=textgray, font=\tiny] at (-0.85, -0.25) {10\%};
+            % Perpendicular (right) - 10%
+            \draw[-{Stealth[length=2mm]}, thick, textgray] (0.5, 0) -- (1.2, 0);
+            \node[text=textgray, font=\tiny] at (0.85, -0.25) {10\%};
+            % Label
+            \node[text=textwhite, font=\tiny] at (0, -0.8) {Intended: $\uparrow$};
+        \end{tikzpicture}
+        \end{center}
+        
+        \vspace{0.1em}
+        
+        \footnotesize
+        \textbf{``Slippery'' dynamics:}
+        \begin{itemize}\setlength\itemsep{0pt}
+            \item 80\% move in intended direction
+            \item 10\% slip to each perpendicular
+            \item Hitting wall $\Rightarrow$ stay in place
+        \end{itemize}
+
+        \column{0.58\textwidth}
+        \footnotesize
+        \textbf{Why stochastic dynamics?}
+        \begin{itemize}\setlength\itemsep{0pt}
+            \item Models real-world uncertainty (wind, slippery surfaces, motor noise)
+            \item Makes planning non-trivial --- can't just find shortest path
+            \item Agent must account for \alert{risk} of ending up in bad states
+        \end{itemize}
+        
+        \vspace{0.2em}
+        
+        \begin{block}{Transition Function}
+            \scriptsize
+            If action is $\uparrow$ in state $s$: \enspace
+            $T(s_{\text{above}} | s, \uparrow) = 0.8$, \enspace
+            $T(s_{\text{left}} | s, \uparrow) = 0.1$, \enspace
+            $T(s_{\text{right}} | s, \uparrow) = 0.1$
+        \end{block}
+    \end{columns}
+\end{frame}
+
+
+\begin{frame}{Solving MDPs: What We Want}
+    \begin{columns}[T]
+        \column{0.55\textwidth}
+        \begin{itemize}
+            \item In an MDP, we want an optimal \alert{policy} $\pi^*: \Sset \to \Aset$
+            \begin{itemize}
+                \item A policy $\pi$ gives an action for each state
+            \end{itemize}
+            \vspace{0.3em}
+            \item An optimal policy maximizes expected sum of rewards
+            \vspace{0.3em}
+            \item \textbf{Contrast:} In deterministic planning, want an optimal \alert{plan} (sequence of actions from start to goal)
+        \end{itemize}
+        
+        \column{0.45\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[scale=0.9]
+            \def\s{0.8}
+            % Fill all cells with dark background
+            \foreach \x in {0,1,2,3} { \foreach \y in {0,1,2} {
+                \fill[darkgray] (\x*\s, \y*\s) rectangle +(\s, \s);
+            }}
+            % Goal state
+            \fill[accentsepia!50] (3*\s, 2*\s) rectangle +(\s, \s);
+            % Hazard state
+            \fill[red!40] (3*\s, 1*\s) rectangle +(\s, \s);
+            % Obstacle (wall)
+            \fill[gray!70] (1*\s, 1*\s) rectangle +(\s, \s);
+            % Grid lines
+            \draw[accentsepia, line width=0.8pt, step=\s] (0,0) grid (4*\s, 3*\s);
+            % Goal/Hazard labels
+            \node[text=accentgold, font=\scriptsize\bfseries] at (3*\s+\s/2, 2*\s+\s/2) {$+1$};
+            \node[text=red!90, font=\scriptsize\bfseries] at (3*\s+\s/2, 1*\s+\s/2) {$-1$};
+            % Policy arrows (cyan for visibility)
+            \node[text=cyan, font=\normalsize] at (0*\s+\s/2, 2*\s+\s/2) {$\rightarrow$};
+            \node[text=cyan, font=\normalsize] at (1*\s+\s/2, 2*\s+\s/2) {$\rightarrow$};
+            \node[text=cyan, font=\normalsize] at (2*\s+\s/2, 2*\s+\s/2) {$\rightarrow$};
+            \node[text=cyan, font=\normalsize] at (0*\s+\s/2, 1*\s+\s/2) {$\uparrow$};
+            \node[text=cyan, font=\normalsize] at (2*\s+\s/2, 1*\s+\s/2) {$\uparrow$};
+            \node[text=cyan, font=\normalsize] at (0*\s+\s/2, 0*\s+\s/2) {$\uparrow$};
+            \node[text=cyan, font=\normalsize] at (1*\s+\s/2, 0*\s+\s/2) {$\leftarrow$};
+            \node[text=cyan, font=\normalsize] at (2*\s+\s/2, 0*\s+\s/2) {$\leftarrow$};
+            \node[text=cyan, font=\normalsize] at (3*\s+\s/2, 0*\s+\s/2) {$\leftarrow$};
+            % Axis labels
+            \foreach \i in {1,2,3,4} {
+                \node[text=textgray, font=\tiny] at (\i*\s-\s/2, -0.2) {\i};
+            }
+            \foreach \i/\l in {0/1,1/2,2/3} {
+                \node[text=textgray, font=\tiny] at (-0.2, \i*\s+\s/2) {\l};
+            }
+        \end{tikzpicture}
+        \end{center}
+        \scriptsize
+        \centering
+        Example: Optimal policy for a 3$\times$4 grid world
+    \end{columns}
+    
+\end{frame}
+
+\begin{frame}{How Many Policies Are There?}
+    \large
+    \textbf{Grid World:} 16 states, 4 actions
+
+    \vspace{0.4em}
+
+    \normalsize
+    \textbf{Question:} How many deterministic policies exist?
+
+    \vspace{0.3em}
+
+    \begin{itemize}
+        \item Each state needs an action assignment
+        \item $|\Aset|$ choices per state, $|\Sset|$ states
+        \item Total: $|\Aset|^{|\Sset|}$ deterministic policies
+    \end{itemize}
+
+    \vspace{0.3em}
+
+    \begin{exampleblock}{Grid World Answer}
+        $4^{16} = 4{,}294{,}967{,}296$ deterministic policies (over 4 billion!)
+    \end{exampleblock}
+
+    \vspace{0.3em}
+
+    \begin{alertblock}{Scaling Problem}
+        Even small MDPs have exponentially many policies. We need \alert{efficient algorithms} --- not brute-force search!
+    \end{alertblock}
+\end{frame}
+
+
+\begin{frame}{MDP Control: Finding the Optimal Policy}
+    \large
+    \textbf{Goal:} Compute the optimal policy
+
+    \vspace{0.2em}
+
+    \begin{center}
+    $\pi^*(s) = \argmax_\pi V^\pi(s)$
+    \end{center}
+
+    \vspace{0.3em}
+
+    
+    \begin{block}{Naive Approach: Policy Search}
+        Enumerate all $|\Aset|^{|\Sset|}$ policies, evaluate each, pick best.
+
+        \alert{Far too slow!} We need dynamic programming algorithms.
+    \end{block}
+\end{frame}
+
+% ============================================================
+\subsection{Value Iteration}
+% ============================================================
+
+\begin{frame}{Value Iteration: Key Idea}
+    \large
+    \textbf{Idea:} Iteratively compute optimal values for increasingly long horizons.
+
+    \vspace{0.3em}
+
+    \normalsize
+    \begin{block}{Key Idea}
+        Maintain $V_k(s)$ = optimal value if you have $k$ steps left to act.
+
+        Iterate to consider longer and longer horizons until convergence.
+    \end{block}
+
+    \vspace{0.3em}
+
+    \textbf{Intuition:}
+    \begin{itemize}
+        \item $V_0(s) = 0$ (no steps left $\Rightarrow$ no reward)
+        \item $V_1(s) = \max_a R(s, a)$ (one step: just get immediate reward)
+        \item $V_k(s)$ builds on $V_{k-1}$ (optimal $k$-step value uses optimal $(k{-}1)$-step values)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Value Iteration: The Algorithm}
+    \begin{block}{Value Iteration Algorithm}
+        \textbf{Initialize:} $V_0(s) = 0$ for all $s$
+
+        \vspace{0.2em}
+
+        \textbf{For} $k = 0, 1, 2, \ldots$ until convergence (e.g., $\|V_{k+1} - V_k\|_\infty < \epsilon$):
+
+        \vspace{0.2em}
+
+        \quad For each state $s$:
+        \begin{center}
+        $V_{k+1}(s) = \max_a \left[ R(s, a) + \gamma \sum_{s' \in \Sset} T(s'|s, a) V_k(s') \right]$
+        \end{center}
+    \end{block}
+
+    \vspace{0.3em}
+
+    \textbf{Extract policy} (after convergence or at any iteration):
+    \begin{center}
+    $\pi(s) = \argmax_a \left[ R(s, a) + \gamma \sum_{s'} T(s'|s, a) V(s') \right]$
+    \end{center}
+\end{frame}
+
+\begin{frame}{The Bellman Operator}
+    \normalsize
+    \textbf{Bellman operators} offer concise notation for expressing value iteration as a single operation.
+
+    \vspace{0.3em}
+
+    \begin{block}{Bellman Optimality Operator $\mathcal{B}: \mathbb{R}^{|\Sset|} \mapsto \mathbb{R}^{|\Sset|}$}
+        $(\mathcal{B}V)(s) = \max_{a \in \Aset} \left[ R(s, a) + \gamma \sum_{s' \in \Sset} T(s'|s, a) V(s') \right]$
+    \end{block}
+
+    \vspace{0.2em}
+
+    Value iteration is simply: \quad $V_{k+1} = \mathcal{B}V_k$
+
+    \vspace{0.3em}
+
+    \begin{block}{Bellman Policy Operator $\mathcal{B}^\pi: \mathbb{R}^{|\Sset|} \mapsto \mathbb{R}^{|\Sset|}$}
+        $(\mathcal{B}^\pi V)(s) = \sum_{a \in \Aset} \pi(a|s) \left[ R(s, a) + \gamma \sum_{s' \in \Sset} T(s'|s, a) V(s') \right]$
+    \end{block}
+
+    \vspace{0.2em}
+
+    Policy evaluation: \quad $V_{k+1}^\pi = \mathcal{B}^\pi V_k^\pi$
+
+    \vspace{0.2em}
+
+\end{frame}
+
+\begin{frame}{Value Iteration: First Iteration ($k=0 \to k=1$)}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[scale=0.9]
+            \def\s{0.7} % cell size
+            
+            % ===== Grid 1: k=0 =====
+            \node[text=textwhite, font=\small\bfseries] at (2*\s, 4.5*\s) {$k=0$};
+            % Base fill
+            \foreach \x in {0,1,2,3} { \foreach \y in {0,1,2,3} {
+                \fill[darkgray] (\x*\s, \y*\s) rectangle +(\s, \s);
+            }}
+            % Special cells
+            \fill[accentsepia!50] (3*\s, 3*\s) rectangle +(\s, \s);
+            \fill[red!40] (1*\s, 2*\s) rectangle +(\s, \s);
+            \fill[red!40] (2*\s, 1*\s) rectangle +(\s, \s);
+            % Grid lines
+            \draw[accentsepia, line width=0.6pt, step=\s] (0,0) grid (4*\s, 4*\s);
+            % Values - terminal states have fixed values
+            \foreach \x in {0,1,2,3} { \foreach \y in {0,1,2,3} {
+                \node[text=textwhite, font=\tiny] at (\x*\s+\s/2, \y*\s+\s/2) {$0$};
+            }}
+            % Overwrite terminal states
+            \node[text=accentgold, font=\tiny\bfseries] at (3*\s+\s/2, 3*\s+\s/2) {$10$};
+            \node[text=red!90, font=\tiny] at (1*\s+\s/2, 2*\s+\s/2) {$-5$};
+            \node[text=red!90, font=\tiny] at (2*\s+\s/2, 1*\s+\s/2) {$-5$};
+            
+            % Arrow
+            \node[text=accentsepia, font=\Large] at (5*\s, 2*\s) {$\Rightarrow$};
+            
+            % ===== Grid 2: k=1 =====
+            \def\ox{6} % x offset
+            \node[text=textwhite, font=\small\bfseries] at (\ox*\s+2*\s, 4.5*\s) {$k=1$};
+            % Base fill
+            \foreach \x in {0,1,2,3} { \foreach \y in {0,1,2,3} {
+                \fill[darkgray] (\ox*\s+\x*\s, \y*\s) rectangle +(\s, \s);
+            }}
+            % Highlight updated cells
+            \fill[blue!20] (\ox*\s+2*\s, 3*\s) rectangle +(\s, \s);
+            \fill[blue!20] (\ox*\s+3*\s, 2*\s) rectangle +(\s, \s);
+            % Special cells
+            \fill[accentsepia!50] (\ox*\s+3*\s, 3*\s) rectangle +(\s, \s);
+            \fill[red!40] (\ox*\s+1*\s, 2*\s) rectangle +(\s, \s);
+            \fill[red!40] (\ox*\s+2*\s, 1*\s) rectangle +(\s, \s);
+            % Grid lines
+            \foreach \i in {0,1,2,3,4} {
+                \draw[accentsepia, line width=0.6pt] (\ox*\s+\i*\s, 0) -- (\ox*\s+\i*\s, 4*\s);
+                \draw[accentsepia, line width=0.6pt] (\ox*\s, \i*\s) -- (\ox*\s+4*\s, \i*\s);
+            }
+            % Values
+            \foreach \x/\y in {0/0,1/0,2/0,3/0,0/1,3/1,0/2,0/3,1/3} {
+                \node[text=textwhite, font=\tiny] at (\ox*\s+\x*\s+\s/2, \y*\s+\s/2) {$0$};
+            }
+            \node[text=textgray, font=\tiny] at (\ox*\s+1*\s+\s/2, 1*\s+\s/2) {$\text{-}.5$};
+            \node[text=textgray, font=\tiny] at (\ox*\s+2*\s+\s/2, 2*\s+\s/2) {$\text{-}.5$};
+            \node[text=cyan, font=\tiny\bfseries] at (\ox*\s+2*\s+\s/2, 3*\s+\s/2) {$7.2$};
+            \node[text=cyan, font=\tiny\bfseries] at (\ox*\s+3*\s+\s/2, 2*\s+\s/2) {$7.2$};
+            \node[text=accentgold, font=\tiny\bfseries] at (\ox*\s+3*\s+\s/2, 3*\s+\s/2) {$10$};
+            \node[text=red!90, font=\tiny] at (\ox*\s+1*\s+\s/2, 2*\s+\s/2) {$-5$};
+            \node[text=red!90, font=\tiny] at (\ox*\s+2*\s+\s/2, 1*\s+\s/2) {$-5$};
+        \end{tikzpicture}
+        \end{center}
+        
+        \column{0.52\textwidth}
+        \footnotesize
+        \textbf{Terminal states} (goal, hazards) have \alert{fixed values}:
+        \begin{itemize}\setlength\itemsep{1pt}
+            \item $V(\text{goal}) = +10$, \enspace $V(\text{hazard}) = -5$
+        \end{itemize}
+        
+        \vspace{0.3em}
+        
+        \textbf{Example:} State $(2,3)$ taking action $\rightarrow$ toward goal:
+        \begin{align*}
+            V_1(2,3) &= \gamma \sum_{s'} T(s'|s, \rightarrow) \cdot V_0(s') \\
+            &= 0.9 \times \big[ \underbrace{0.8 \cdot 10}_{\text{reach goal}} + \underbrace{0.1 \cdot 0 + 0.1 \cdot 0}_{\text{slip}} \big] \\
+            &= 0.9 \times 8 = \mathbf{7.2}
+        \end{align*}
+        
+        \vspace{0.2em}
+        
+        \textbf{State $(1,1)$} is adjacent to \alert{both hazards}:
+        \begin{itemize}\setlength\itemsep{1pt}
+            \item Best action avoids hazards but risks slipping
+            \item $V_1(1,1) = 0.9 \times 0.1 \times (-5) = -0.5$
+        \end{itemize}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Value Iteration: Converged Values}
+    \vspace{-0.3em}
+    \begin{columns}[T]
+        \column{0.42\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[scale=1.0]
+            \def\s{0.75} % cell size
+            
+            \node[text=textwhite, font=\small\bfseries] at (2*\s, 4.4*\s) {$V^*$ (Converged)};
+            
+            % Base fill with value-based coloring
+            \foreach \x/\y/\c in {0/0/8,1/0/10,2/0/12,3/0/15,0/1/10,1/1/7,3/1/17,0/2/12,2/2/17,3/2/22,0/3/15,1/3/17,2/3/22} {
+                \fill[blue!\c] (\x*\s, \y*\s) rectangle +(\s, \s);
+            }
+            % Special cells
+            \fill[accentsepia!50] (3*\s, 3*\s) rectangle +(\s, \s);
+            \fill[red!40] (1*\s, 2*\s) rectangle +(\s, \s);
+            \fill[red!40] (2*\s, 1*\s) rectangle +(\s, \s);
+            % Grid lines
+            \draw[accentsepia, line width=0.8pt, step=\s] (0,0) grid (4*\s, 4*\s);
+            
+            % Converged values
+            \node[text=textwhite, font=\scriptsize] at (0*\s+\s/2, 0*\s+\s/2) {$2.8$};
+            \node[text=textwhite, font=\scriptsize] at (1*\s+\s/2, 0*\s+\s/2) {$3.2$};
+            \node[text=textwhite, font=\scriptsize] at (2*\s+\s/2, 0*\s+\s/2) {$3.7$};
+            \node[text=cyan, font=\scriptsize] at (3*\s+\s/2, 0*\s+\s/2) {$5.3$};
+            \node[text=textwhite, font=\scriptsize] at (0*\s+\s/2, 1*\s+\s/2) {$3.2$};
+            \node[text=textwhite, font=\scriptsize] at (1*\s+\s/2, 1*\s+\s/2) {$2.1$};
+            \node[text=red!90, font=\scriptsize\bfseries] at (2*\s+\s/2, 1*\s+\s/2) {$-5$};
+            \node[text=cyan, font=\scriptsize] at (3*\s+\s/2, 1*\s+\s/2) {$6.3$};
+            \node[text=textwhite, font=\scriptsize] at (0*\s+\s/2, 2*\s+\s/2) {$3.7$};
+            \node[text=red!90, font=\scriptsize\bfseries] at (1*\s+\s/2, 2*\s+\s/2) {$-5$};
+            \node[text=cyan, font=\scriptsize] at (2*\s+\s/2, 2*\s+\s/2) {$6.5$};
+            \node[text=cyan, font=\scriptsize\bfseries] at (3*\s+\s/2, 2*\s+\s/2) {$8.6$};
+            \node[text=cyan, font=\scriptsize] at (0*\s+\s/2, 3*\s+\s/2) {$5.3$};
+            \node[text=cyan, font=\scriptsize] at (1*\s+\s/2, 3*\s+\s/2) {$6.3$};
+            \node[text=cyan, font=\scriptsize\bfseries] at (2*\s+\s/2, 3*\s+\s/2) {$8.6$};
+            \node[text=accentgold, font=\scriptsize\bfseries] at (3*\s+\s/2, 3*\s+\s/2) {$10$};
+            
+            % Axis labels
+            \foreach \i in {0,1,2,3} {
+                \node[text=textgray, font=\tiny] at (\i*\s+\s/2, -0.2) {\i};
+                \node[text=textgray, font=\tiny] at (-0.2, \i*\s+\s/2) {\i};
+            }
+        \end{tikzpicture}
+        \end{center}
+        
+        \column{0.58\textwidth}
+        \footnotesize
+        
+        \textbf{Key observations:}
+        \begin{itemize}\setlength\itemsep{1pt}
+            \item Values ``flow'' outward from the goal
+            \item Higher values $\Rightarrow$ closer/safer path to goal
+            \item \textbf{State $(1,1)$}: value $2.1$ (lower than neighbors $3.2$)
+            \begin{itemize}\setlength\itemsep{0pt}
+                \item Adjacent to \alert{both hazards}, risk of slipping
+            \end{itemize}
+        \end{itemize}
+        
+        \vspace{0.2em} 
+        
+        \textbf{Optimal policy} follows the value gradient:
+        \begin{itemize}\setlength\itemsep{1pt}
+            \item From $(0,0)$: go $\uparrow$ (value $3.2 > 2.8$)
+            \item From $(1,1)$: go $\downarrow$ to \alert{avoid hazards}
+            \item From $(2,3)$: go $\rightarrow$ to goal
+        \end{itemize}
+        
+        \vspace{0.2em}
+        
+        \begin{block}{\scriptsize Convergence}
+            \scriptsize Converges in $\sim$16 sweeps ($\gamma = 0.9$). Code example in lecture notes.
+        \end{block}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Contraction Mapping Theorem}
+    \small
+    \begin{block}{Theorem (Contraction Mapping)}
+        For discount factor $\gamma \in [0, 1)$ and all $V, V' \in \mathbb{R}^{|\Sset|}$: \enspace $\|\mathcal{B}V - \mathcal{B}V'\|_\infty \leq \gamma \|V - V'\|_\infty$
+    \end{block}
+    \vspace{-0.3em}
+    \textbf{Proof:} For all $s \in \Sset$,
+    \footnotesize
+    \vspace{-0.5em}
+    \begin{align*}
+        (\mathcal{B}V)(s) - (\mathcal{B}V')(s) &= \max_{a} \left[ r(s,a) + \gamma \textstyle\sum_{s'} T(s'|s,a) V(s') \right] - \max_{a} \left[ r(s,a) + \gamma \textstyle\sum_{s'} T(s'|s,a) V'(s') \right] \\[-0.3em]
+        &\leq \max_{a} \left[ r(s,a) + \gamma \textstyle\sum_{s'} T(s'|s,a) V(s') - r(s,a) - \gamma \textstyle\sum_{s'} T(s'|s,a) V'(s') \right] \\[-0.3em]
+        &= \gamma \max_{a} \textstyle\sum_{s'} T(s'|s,a) (V(s') - V'(s')) \\&\leq \gamma \max_{s'} |V(s') - V'(s')| = \gamma \|V - V'\|_\infty \enspace \square
+    \end{align*}
+\end{frame}
+
+\begin{frame}{Convergence of Value Iteration}
+    \small
+    \begin{block}{Theorem (Convergence)}
+        For $\gamma \in [0, 1)$, the sequence $V_0, V_1, \ldots$ with $V_{k+1} = \mathcal{B}V_k$ converges to $V^*$.
+    \end{block}
+    \vspace{-0.2em}
+    \textbf{Proof:} Recall $V^* = \mathcal{B}V^*$ (fixed point). For each $k$:
+    \[
+    \|V^* - V_{k+1}\|_\infty = \|\mathcal{B}V^* - \mathcal{B}V_k\|_\infty \leq \gamma \|V^* - V_k\|_\infty
+    \]
+    \vspace{-1em}
+    
+    By induction: $\|V^* - V_{k}\|_\infty \leq \gamma^k \|V^* - V_0\|_\infty \to 0$ as $k \to \infty$. \hfill $\square$
+    
+    \vspace{0.2em}
+    
+    \begin{block}{Convergence Conditions}
+        Value iteration converges if: (1) $\gamma < 1$, OR (2) all policies reach a terminal state.
+    \end{block}
+
+\end{frame}
+
+\begin{frame}{Asynchronous Value Iteration}
+    \small
+    Value iteration can be applied in a \alert{distributed and asynchronous} manner --- different states can be updated at different times, even with outdated values.
+    
+    \vspace{0.3em}
+    
+    \begin{block}{Theorem (Asynchronous Convergence)}
+        Fix a finite MDP $(\Sset, \Aset, T)$, reward $r: \Sset \times \Aset \to \mathbb{R}$, and $\gamma \in [0, 1)$. 
+        If $\Sset_0, \Sset_1, \ldots$ is a sequence of subsets of $\Sset$ such that each state $s \in \Sset$ appears infinitely often, then for any $\tilde{V}_0$, the sequence generated by
+        \[
+        V_{k+1}(s) = \begin{cases}
+            (\mathcal{B}V_k)(s) & s \in \Sset_k \\
+            V_k(s) & s \notin \Sset_k
+        \end{cases}
+        \]
+        converges to $V^*$.
+    \end{block}
+    
+    \vspace{0.2em} 
+    
+    \textbf{Proof sketch:} Since $\mathcal{B}$ is a $\gamma$-contraction, for updated states $s \in \Sset_k$:
+    \[
+    |V^*(s) - V_{k+1}(s)| \leq \gamma \|V^* - V_k\|_\infty
+    \]
+    Because each state appears infinitely often, the error contracts for all states. \hfill $\square$
+    
+    \vspace{0.3em}
+    
+    \footnotesize
+    \textbf{Implication:} \alert{Gauss-Seidel VI} (update one state at a time using latest values) also converges --- often faster than synchronous updates!
+\end{frame}
+
+\begin{frame}{Intuition about Better Algorithms }
+    \begin{block}{Note}
+        Understanding contraction mappings and other tricks for building intuition on convergent algorithms helps design better RL optimization methods. We'll see something similar again in policy gradients.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Discussion: Speeding Up Value Iteration} 
+    \large
+    \textbf{Turn to your neighbor and discuss:}
+
+    \vspace{0.5em}
+
+    \normalsize
+    \begin{block}{Question}
+        What strategies can we use to speed up convergence of value iteration?
+    \end{block}
+
+    \small
+    \textit{Take 2--3 minutes to brainstorm with your neighbor.}
+\end{frame}
+
+\begin{frame}{Variants of Value Iteration}
+    
+    \textbf{Gauss-Seidel VI:} Update states \alert{in order}, using new values \alert{immediately}.
+    \begin{itemize}
+        \item When computing $V(s_i)$, use already-updated $V(s_1), \ldots, V(s_{i-1})$
+        \item Often converges faster --- new information propagates within an iteration
+        \item Same convergence guarantees as standard VI
+    \end{itemize}
+
+    \vspace{0.3em} 
+
+    \textbf{Asynchronous VI:} Update states in \alert{any order}, even in parallel.
+    \begin{itemize}
+        \item Each processor updates its own subset of states
+        \item Converges as long as every state is updated infinitely often
+        \item Great for distributed/parallel implementations
+        \item Make a note of this! Modern RL for LLMs is all about throughput, async methods help a lot!
+    \end{itemize} 
+\end{frame}
+
+% ============================================================
+\subsection{Policy Iteration}
+% ============================================================
+
+\begin{frame}{Policy Iteration: Overview}
+    \large
+    \textbf{Idea:} Alternate between evaluating and improving the policy.
+
+    \vspace{0.3em}
+
+    \normalsize
+    \begin{enumerate}
+        \item \textbf{Initialize:} Start with arbitrary policy $\pi_0$
+        \item \textbf{Policy Evaluation:} Compute $V^{\pi_i}$ for current policy
+        \item \textbf{Policy Improvement:} Compute better policy $\pi_{i+1}$
+        \item \textbf{Repeat} until policy stops changing
+    \end{enumerate}
+
+    \vspace{0.3em}
+
+    \begin{center}
+    \begin{tikzpicture}[
+        box/.style={draw=accentsepia, rounded corners=6pt, minimum width=2.5cm, minimum height=0.9cm, align=center, fill=darkgray, text=textwhite, line width=1.5pt},
+        arrow/.style={-{Stealth[length=3mm, width=2mm]}, very thick, color=accentsepia}
+    ]
+        \node[box] (eval) {Policy\\Evaluation};
+        \node[box, right=2.5cm of eval] (improve) {Policy\\Improvement};
+        \draw[arrow] (eval.east) -- node[above, text=textwhite, font=\small] {$V^{\pi_i}$} (improve.west);
+        \draw[arrow] (improve.south) -- ++(0,-0.6) -| node[below, pos=0.25, text=textwhite, font=\small] {$\pi_{i+1}$} (eval.south);
+    \end{tikzpicture}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Policy Evaluation: Iterative Algorithm}
+    \large
+    \textbf{Goal:} Compute $V^{\pi}(s)$ for all states $s$
+
+    \vspace{0.3em}
+
+    \normalsize
+    \begin{block}{Iterative Policy Evaluation}
+        Initialize $V_0(s) = 0$ for all $s$
+
+        For $k = 1, 2, \ldots$ until convergence:
+        \begin{center}
+        $V_k^{\pi}(s) = \sum_a \pi(a|s) \left[ R(s, a) + \gamma \sum_{s' \in \Sset} T(s'|s, a) V_{k-1}^{\pi}(s') \right]$
+        \end{center}
+    \end{block}
+
+    \vspace{0.2em}
+
+    \small
+    For a \alert{deterministic} policy $\pi(s)$, this simplifies to:
+    \begin{center}
+    $V_k^{\pi}(s) = R(s, \pi(s)) + \gamma \sum_{s' \in \Sset} T(s'|s, \pi(s)) V_{k-1}^{\pi}(s')$
+    \end{center}
+
+    \vspace{0.2em}
+\end{frame}
+
+\begin{frame}{Policy Improvement}
+    \large
+    \textbf{Given} $V^{\pi_i}$, how do we get a better policy?
+
+    \vspace{0.3em}
+
+    \normalsize
+    \textbf{Step 1:} Compute $Q^{\pi_i}(s, a)$ for all states and actions:
+    \begin{center}
+    $Q^{\pi_i}(s, a) = R(s, a) + \gamma \sum_{s' \in \Sset} T(s'|s, a) V^{\pi_i}(s')$
+    \end{center}
+
+    \vspace{0.3em}
+
+    \textbf{Step 2:} Act greedily with respect to $Q^{\pi_i}$:
+    \begin{center}
+    $\pi_{i+1}(s) = \argmax_a Q^{\pi_i}(s, a) \quad \forall s \in \Sset$
+    \end{center}
+
+    \vspace{0.3em}
+
+    \begin{block}{Intuition}
+        If taking action $a$ then following $\pi_i$ is better than just following $\pi_i$, we should take $a$!
+    \end{block}
+\end{frame}
+
+\begin{frame}{Why Does Policy Iteration Converge?}
+    \normalsize
+    \textbf{Key insight:} The greedy action is at least as good as the current policy.
+
+    \vspace{0.2em}
+
+    \begin{align*}
+        \max_a Q^{\pi_i}(s, a) &\geq Q^{\pi_i}(s, \pi_i(s)) = V^{\pi_i}(s)
+    \end{align*}
+
+    \vspace{0.2em}
+
+    \begin{block}{Monotonic Improvement Theorem}
+        $V^{\pi_{i+1}}(s) \geq V^{\pi_i}(s)$ for all states $s$.
+    \end{block}
+
+    \vspace{0.2em}
+
+    \textbf{Consequences:}
+    \begin{itemize}
+        \item Policy iteration \alert{converges} to optimal policy $\pi^*$
+        \item Maximum $|\Aset|^{|\Sset|}$ iterations (number of policies is finite)
+        \item In practice, converges much faster than that.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Policy Iteration: Full Algorithm}
+    \begin{block}{Policy Iteration Algorithm}
+        \small
+        \textbf{Initialize:} $\pi_0(s)$ arbitrarily for all $s$; set $i = 0$
+
+        \vspace{0.2em}
+
+        \textbf{Repeat:}
+        \begin{enumerate}
+            \item \textbf{Policy Evaluation:} Compute $V^{\pi_i}$ by iterating:
+
+            $V_k^{\pi_i}(s) = R(s, \pi_i(s)) + \gamma \sum_{s'} T(s'|s, \pi_i(s)) V_{k-1}^{\pi_i}(s')$
+
+            until convergence
+
+            \item \textbf{Policy Improvement:} For all $s \in \Sset$:
+
+            $Q^{\pi_i}(s, a) = R(s, a) + \gamma \sum_{s'} T(s'|s, a) V^{\pi_i}(s')$
+
+            $\pi_{i+1}(s) = \argmax_a Q^{\pi_i}(s, a)$
+
+            \item $i \leftarrow i + 1$
+        \end{enumerate}
+
+        \textbf{Until:} $\pi_i = \pi_{i-1}$ (policy unchanged)
+    \end{block}
+\end{frame}
+
+\section{Questions?}
+
+\begin{frame}
+    \begin{block}{Next week's papers/reading}
+        Next week's papers/reading will be posted after the class with an announcement on submitting the reading reflection. We will be moving beyond tabular methods pretty quickly and going straight into value-based function approximation methods.
+    \end{block}
+\end{frame}
+
+\end{document}

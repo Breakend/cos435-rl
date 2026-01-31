@@ -1,0 +1,163 @@
+% =========================================================
+% RL From Scratch — Tufte Book Preamble
+% Inspired by the Overleaf template "A Tufte-Style Book with VDQI Title and Contents Page"
+% =========================================================
+
+% NOTE: We compile with the tufte-book class option [nohyper] to preserve the VDQI-style TOC formatting.
+\usepackage{nameref}
+\usepackage{url}
+
+% Colors for hyperref (define before loading)
+\definecolor{echodrk}{HTML}{0099cc}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+% Hyperlinks (load early but configure later)
+\usepackage[colorlinks,linkcolor=mymauve,citecolor=echodrk]{hyperref}
+
+% Math
+\usepackage{amsmath, amssymb, amsthm, mathtools, bm}
+
+% Tables and figures
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc}
+\setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
+\graphicspath{{figures/}}
+
+% Margin notes (like arXiv example)
+\usepackage{marginnote}
+\renewcommand*{\marginfont}{\footnotesize}
+
+% Lists and small utilities
+\usepackage{enumitem}
+\setlist[itemize]{topsep=2pt, itemsep=2pt}
+\setlist[enumerate]{topsep=2pt, itemsep=2pt}
+
+% Code and pseudocode (portable: no shell-escape required)
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{SoftGray}{HTML}{F3F5F8}
+\definecolor{Ink}{HTML}{111827}
+\definecolor{Accent}{HTML}{1D4ED8}
+\definecolor{Warn}{HTML}{B45309}
+\definecolor{Good}{HTML}{0F766E}
+\definecolor{boxgray}{rgb}{0.9,0.9,0.9}
+\definecolor{boxpink}{rgb}{0.9,0.7,0.7}
+
+\lstdefinestyle{rlstyle}{
+  backgroundcolor=\color{SoftGray},
+  basicstyle=\ttfamily\small\color{Ink},
+  keywordstyle=\bfseries\color{Accent},
+  commentstyle=\itshape\color{gray},
+  stringstyle=\color{Accent},
+  frame=single,
+  rulecolor=\color{white},
+  breaklines=true,
+  tabsize=2,
+  showstringspaces=false
+}
+\lstset{style=rlstyle}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Beautiful callouts (Tufte-friendly: full-width boxes)
+\usepackage[most]{tcolorbox}
+\tcbset{
+  colback=SoftGray,
+  colframe=Ink,
+  arc=1.5mm,
+  boxrule=0.5pt,
+  left=2.2mm,
+  right=2.2mm,
+  top=1.2mm,
+  bottom=1.2mm
+}
+
+\newtcolorbox{rlbox}[2][]{%
+  enhanced,
+  title=\textbf{#2},
+  coltitle=Ink,
+  #1
+}
+
+% Provide fullwidth if not available (from tufte-book)
+\providecommand{\fullwidth}[1]{#1}
+
+\newenvironment{objectives}{
+  \begin{fullwidth}\begin{rlbox}{Learning objectives}\begin{itemize}
+}{
+  \end{itemize}\end{rlbox}\end{fullwidth}
+}
+
+\newenvironment{keyidea}{
+  \begin{fullwidth}\begin{rlbox}[colframe=Ink]{Key idea}
+}{
+  \end{rlbox}\end{fullwidth}
+}
+
+\newenvironment{fromscratch}{
+  \begin{fullwidth}\begin{rlbox}[colframe=Accent]{From scratch}
+}{
+  \end{rlbox}\end{fullwidth}
+}
+
+\newenvironment{pitfall}{
+  \begin{fullwidth}\begin{rlbox}[colframe=Warn]{Pitfall}
+}{
+  \end{rlbox}\end{fullwidth}
+}
+
+\newenvironment{lab}{
+  \begin{fullwidth}\begin{rlbox}[colframe=Good]{Lab}
+}{
+  \end{rlbox}\end{fullwidth}
+}
+
+\newenvironment{exercises}{
+  \begin{fullwidth}\begin{rlbox}{Exercises}\begin{enumerate}
+}{
+  \end{enumerate}\end{rlbox}\end{fullwidth}
+}
+
+
+% Theorem-like environments (book-friendly)
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[chapter]
+
+% --- Notation shortcuts ---
+% (These are defined in math_commands.tex to avoid duplication)
+
+% =========================================================
+% VDQI-style title page + TOC formatting (Kevin Godby code)
+% See template: https://www.overleaf.com/latex/templates/a-tufte-style-book-with-vdqi-title-and-contents-page/xqkjxvmrhmmp
+% =========================================================
+\usepackage{titletoc}
+
+% Title page customization (only if using tufte-book class)
+% For standard book class, \maketitle is used instead
+
+% TOC formatting (provide allcaps if not available)
+\providecommand{\allcaps}[1]{#1}
+
+\titlecontents{part}%
+    [0pt]% distance from left margin
+    {\addvspace{0.25\baselineskip}}% above (global formatting of entry)
+    {\allcaps{Part~\thecontentslabel}\allcaps}% before w/ label
+    {\allcaps{Part~\thecontentslabel}\allcaps}% before w/o label
+    {}% filler and page
+    [\vspace*{0.5\baselineskip}]% after
+\titlecontents{chapter}%
+    [4em]% distance from left margin
+    {}% above
+    {\contentslabel{2em}\textit}% before w/ label
+    {\hspace{0em}\textit}% before w/o label
+    {\qquad\thecontentspage}% filler and page
+    [\vspace*{0.5\baselineskip}]% after

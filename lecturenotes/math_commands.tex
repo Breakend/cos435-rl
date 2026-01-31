@@ -1,0 +1,209 @@
+
+\usepackage{amsmath,amsfonts,bm}
+
+% Mark sections of captions for referring to divisions of figures
+\newcommand{\figleft}{{\em (Left)}}
+\newcommand{\figcenter}{{\em (Center)}}
+\newcommand{\figright}{{\em (Right)}}
+\newcommand{\figtop}{{\em (Top)}}
+\newcommand{\figbottom}{{\em (Bottom)}}
+\newcommand{\captiona}{{\em (a)}}
+\newcommand{\captionb}{{\em (b)}}
+\newcommand{\captionc}{{\em (c)}}
+\newcommand{\captiond}{{\em (d)}}
+
+% Highlight a newly defined term
+\newcommand{\newterm}[1]{{\bf #1}}
+
+% Figure reference, lower-case.
+\def\figref#1{figure~\ref{#1}}
+% Figure reference, capital. For start of sentence
+\def\Figref#1{Figure~\ref{#1}}
+\def\twofigref#1#2{figures \ref{#1} and \ref{#2}}
+\def\quadfigref#1#2#3#4{figures \ref{#1}, \ref{#2}, \ref{#3} and \ref{#4}}
+% Section reference, lower-case.
+\def\secref#1{section~\ref{#1}}
+% Section reference, capital.
+\def\Secref#1{Section~\ref{#1}}
+% Reference to two sections.
+\def\twosecrefs#1#2{sections \ref{#1} and \ref{#2}}
+% Reference to three sections.
+\def\secrefs#1#2#3{sections \ref{#1}, \ref{#2} and \ref{#3}}
+% Reference to an equation, lower-case.
+\def\eqref#1{equation~\ref{#1}}
+% Reference to an equation, upper case
+\def\Eqref#1{Equation~\ref{#1}}
+% A raw reference to an equation---avoid using if possible
+\def\plaineqref#1{\ref{#1}}
+% Reference to a chapter, lower-case.
+\def\chapref#1{chapter~\ref{#1}}
+% Reference to an equation, upper case.
+\def\Chapref#1{Chapter~\ref{#1}}
+% Reference to a range of chapters
+\def\rangechapref#1#2{chapters\ref{#1}--\ref{#2}}
+% Reference to an algorithm, lower-case.
+\def\algref#1{algorithm~\ref{#1}}
+% Reference to an algorithm, upper case.
+\def\Algref#1{Algorithm~\ref{#1}}
+\def\twoalgref#1#2{algorithms \ref{#1} and \ref{#2}}
+\def\Twoalgref#1#2{Algorithms \ref{#1} and \ref{#2}}
+% Reference to a part, lower case
+\def\partref#1{part~\ref{#1}}
+% Reference to a part, upper case
+\def\Partref#1{Part~\ref{#1}}
+\def\twopartref#1#2{parts \ref{#1} and \ref{#2}}
+
+\def\ceil#1{\lceil #1 \rceil}
+\def\floor#1{\lfloor #1 \rfloor}
+\def\1{\bm{1}}
+\newcommand{\train}{\mathcal{D}}
+\newcommand{\valid}{\mathcal{D_{\mathrm{valid}}}}
+\newcommand{\test}{\mathcal{D_{\mathrm{test}}}}
+
+\def\eps{{\epsilon}}
+
+% Random variables
+\def\reta{{\textnormal{$\eta$}}}
+\def\ra{{\textnormal{a}}}
+\def\rb{{\textnormal{b}}}
+\def\rc{{\textnormal{c}}}
+\def\rd{{\textnormal{d}}}
+\def\re{{\textnormal{e}}}
+\def\rf{{\textnormal{f}}}
+\def\rg{{\textnormal{g}}}
+\def\rh{{\textnormal{h}}}
+\def\ri{{\textnormal{i}}}
+\def\rj{{\textnormal{j}}}
+\def\rk{{\textnormal{k}}}
+\def\rl{{\textnormal{l}}}
+% rm is already a command, just don't name any random variables m
+\def\rn{{\textnormal{n}}}
+\def\ro{{\textnormal{o}}}
+\def\rp{{\textnormal{p}}}
+\def\rq{{\textnormal{q}}}
+\def\rr{{\textnormal{r}}}
+\def\rs{{\textnormal{s}}}
+\def\rt{{\textnormal{t}}}
+\def\ru{{\textnormal{u}}}
+\def\rv{{\textnormal{v}}}
+\def\rw{{\textnormal{w}}}
+\def\rx{{\textnormal{x}}}
+\def\ry{{\textnormal{y}}}
+\def\rz{{\textnormal{z}}}
+
+% Vectors
+\def\vzero{{\bm{0}}}
+\def\vone{{\bm{1}}}
+\def\vmu{{\bm{\mu}}}
+\def\vtheta{{\bm{\theta}}}
+\def\va{{\bm{a}}}
+\def\vb{{\bm{b}}}
+\def\vc{{\bm{c}}}
+\def\vd{{\bm{d}}}
+\def\ve{{\bm{e}}}
+\def\vf{{\bm{f}}}
+\def\vg{{\bm{g}}}
+\def\vh{{\bm{h}}}
+\def\vi{{\bm{i}}}
+\def\vj{{\bm{j}}}
+\def\vk{{\bm{k}}}
+\def\vl{{\bm{l}}}
+\def\vm{{\bm{m}}}
+\def\vn{{\bm{n}}}
+\def\vo{{\bm{o}}}
+\def\vp{{\bm{p}}}
+\def\vq{{\bm{q}}}
+\def\vr{{\bm{r}}}
+\def\vs{{\bm{s}}}
+\def\vt{{\bm{t}}}
+\def\vu{{\bm{u}}}
+\def\vv{{\bm{v}}}
+\def\vw{{\bm{w}}}
+\def\vx{{\bm{x}}}
+\def\vy{{\bm{y}}}
+\def\vz{{\bm{z}}}
+
+% RL-specific notation
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\KL}{\mathrm{KL}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Sset}{\mathcal{S}}
+\newcommand{\Aset}{\mathcal{A}}
+\newcommand{\T}{\mathcal{T}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+% Sets
+\def\sA{{\mathbb{A}}}
+\def\sB{{\mathbb{B}}}
+\def\sC{{\mathbb{C}}}
+\def\sD{{\mathbb{D}}}
+\def\sF{{\mathbb{F}}}
+\def\sG{{\mathbb{G}}}
+\def\sH{{\mathbb{H}}}
+\def\sI{{\mathbb{I}}}
+\def\sJ{{\mathbb{J}}}
+\def\sK{{\mathbb{K}}}
+\def\sL{{\mathbb{L}}}
+\def\sM{{\mathbb{M}}}
+\def\sN{{\mathbb{N}}}
+\def\sO{{\mathbb{O}}}
+\def\sP{{\mathbb{P}}}
+\def\sQ{{\mathbb{Q}}}
+\def\sR{{\mathbb{R}}}
+\def\sS{{\mathbb{S}}}
+\def\sT{{\mathbb{T}}}
+\def\sU{{\mathbb{U}}}
+\def\sV{{\mathbb{V}}}
+\def\sW{{\mathbb{W}}}
+\def\sX{{\mathbb{X}}}
+\def\sY{{\mathbb{Y}}}
+\def\sZ{{\mathbb{Z}}}
+
+\newcommand{\Ls}{\mathcal{L}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\emp}{\tilde{p}}
+\newcommand{\lr}{\alpha}
+\newcommand{\reg}{\lambda}
+\newcommand{\rect}{\mathrm{rectifier}}
+\newcommand{\softmax}{\mathrm{softmax}}
+\newcommand{\sigmoid}{\sigma}
+\newcommand{\softplus}{\zeta}
+
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\Tr}{Tr}
+\let\ab\allowbreak
+
+\def\thetab{\boldsymbol{\theta}}
+\def\Thetab{\boldsymbol{\Theta}}
+\def\varthetab{\boldsymbol{\vartheta}}
+\def\etab{\boldsymbol{\eta}}
+\def\zetab{\boldsymbol{\zeta}}
+\def\betab{\boldsymbol{\beta}}
+\def\xib{\boldsymbol{\xi}}
+\def\ab{\boldsymbol{a}}
+\def\bb{\boldsymbol{b}}
+\def\cb{\boldsymbol{c}}
+\def\eb{\boldsymbol{e}}
+\def\qb{\boldsymbol{q}}
+\def\kb{\boldsymbol{k}}
+\def\nb{\boldsymbol{n}}
+\def\rb{\boldsymbol{r}}
+\def\ub{\boldsymbol{u}}
+\def\xb{\boldsymbol{x}}
+\def\Xb{\boldsymbol{X}}
+\def\yb{\boldsymbol{y}}
+\def\Yb{\boldsymbol{Y}}
+\def\zb{\boldsymbol{z}}
+\def\Zb{\boldsymbol{Z}}
+\def\Wb{\boldsymbol{W}}
+\def\Bb{\boldsymbol{B}}
+\def\Tb{\boldsymbol{T}}
+
+% complex i
+\newcommand\mi{\mathrm{i}}
+
+\hyphenation{eigen-value eigen-function eigen-vector eigen-vectors}

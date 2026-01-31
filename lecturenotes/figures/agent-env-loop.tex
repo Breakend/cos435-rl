@@ -1,0 +1,25 @@
+% TikZ figure for agent-environment loop
+% This file can be included in LaTeX builds
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    node distance=2.5cm,
+    box/.style={draw, rounded corners, minimum width=2.2cm, minimum height=1cm, align=center, fill=boxgray},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick}
+]
+    % Nodes
+    \node[box] (agent) {Agent\\{\small $\pi(a \mid s)$}};
+    \node[box, right=3.5cm of agent] (env) {Environment\\{\small $\T(s' \mid s, a)$}};
+    \node[box, below=1.5cm of $(agent)!0.5!(env)$] (reward) {Reward\\{\small $r(s, a)$}};
+    
+    % Agent <-> Environment
+    \draw[arrow] ([yshift=0.2cm]agent.east) -- node[above] {action $a_t$} ([yshift=0.2cm]env.west);
+    \draw[arrow] ([yshift=-0.2cm]env.west) -- node[below] {state $s_{t+1}$} ([yshift=-0.2cm]agent.east);
+    
+    % Reward function connections
+    \draw[arrow] (env.south) -- node[right, pos=0.3] {\small $s_t, a_t$} (reward.east);
+    \draw[arrow] (reward.west) -- node[left, pos=0.7] {\small $r_{t+1}$} (agent.south);
+\end{tikzpicture}
+\caption{The agent--environment interaction loop. The agent observes state $s_t$, selects action $a_t$ via policy $\pi$, and the environment transitions to $s_{t+1}$. The reward function evaluates the state-action pair and returns $r_{t+1}$ to the agent.}
+\label{fig:agent-env-loop}
+\end{figure}

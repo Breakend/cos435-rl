@@ -1,0 +1,162 @@
+\documentclass[11pt]{book}              % Book class in 11 points
+
+\parindent0pt  \parskip10pt             % make block paragraphs
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[round]{natbib}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc}
+\usepackage{tgpagella}
+\usepackage{emptypage}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage[LGR,T1]{fontenc}
+\newcommand{\textgreek}[1]{\begingroup\fontencoding{LGR}\selectfont#1\endgroup}
+
+\usepackage{tcolorbox}
+
+\usepackage{microtype}
+
+\definecolor{echodrk}{HTML}{0099cc}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\usepackage[colorlinks,linkcolor=mymauve,citecolor=echodrk]{hyperref}
+
+\definecolor{boxgray}{rgb}{0.9,0.9,0.9}
+\definecolor{boxpink}{rgb}{0.9,0.7,0.7}
+
+\renewcommand\vec{\mathbf}
+\newcommand\mat{\mathbf}
+
+\makeatletter
+\renewcommand{\thesection}{%
+  \ifnum\c@chapter<1 \@arabic\c@section
+  \else \thechapter.\@arabic\c@section
+  \fi
+}
+\makeatother
+
+% margin notes
+\usepackage{marginnote}
+\renewcommand*{\marginfont}{\footnotesize}
+
+\input{math_commands}
+
+\definecolor{olivegreen}{HTML}{006400}
+\definecolor{echoblue}{HTML}{0099CC}
+\definecolor{gold}{HTML}{F09A00}
+\definecolor{vividred}{HTML}{E60B42}
+\definecolor{echonavy}{HTML}{0054B2}
+\definecolor{darkgry}{HTML}{333333}
+\definecolor{echopurple}{HTML}{9400D1}
+
+\newcommand*{\horzbar}{\rule[.5ex]{2.5ex}{0.5pt}}
+
+\newtheoremstyle{break}
+  {\topsep}{\topsep}%
+  {\itshape}{}%
+  {\bfseries}{}%
+  {\newline}{}%
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{example}{Example}
+\newtheorem{remarks}{Remarks}
+\newtheorem{consequence}{Consequence}
+\newtheorem{consequences}{Consequences}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+% Code listings
+\usepackage{listings}
+\definecolor{SoftGray}{HTML}{F3F5F8}
+\definecolor{Ink}{HTML}{111827}
+\definecolor{Accent}{HTML}{1D4ED8}
+\lstdefinestyle{rlstyle}{
+  backgroundcolor=\color{SoftGray},
+  basicstyle=\ttfamily\small\color{Ink},
+  keywordstyle=\bfseries\color{Accent},
+  commentstyle=\itshape\color{gray},
+  stringstyle=\color{Accent},
+  frame=single,
+  rulecolor=\color{white},
+  breaklines=true,
+  tabsize=2,
+  showstringspaces=false
+}
+\lstset{style=rlstyle}
+
+% Custom algorithm environment (simple box with title)
+\newenvironment{algorithm}[1][]{%
+  \begin{tcolorbox}[colback=white, colframe=black!50, title={\textbf{Algorithm} #1}, fonttitle=\bfseries]
+}{%
+  \end{tcolorbox}
+}
+
+% Custom frontiers environment (for connections to advanced topics)
+\newenvironment{frontiers}{%
+  \begin{tcolorbox}[colback=echopurple!5, colframe=echopurple!80, title={\textbf{Implications for Frontiers}}, fonttitle=\bfseries]
+}{%
+  \end{tcolorbox}
+}
+
+\usepackage{fancyhdr}
+
+\fancypagestyle{plain}{ %
+  \fancyhf{} % remove everything
+  \renewcommand{\headrulewidth}{0pt} % remove lines as well
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+\fancypagestyle{fancybook}{%
+    \fancyhf{}%
+    \renewcommand*{\sectionmark}[1]{ \markright{\thesection\ ##1} }%
+    \fancyhfoffset[LE]{6mm}%
+    \fancyhfoffset[RO]{6mm}%
+    \fancyhead[LE]{\thepage\hskip3mm\vrule\hskip3mm PETER HENDERSON}%
+    \fancyhead[RO]{\rightmark\hskip3mm\vrule\hskip3mm\thepage}%
+}
+\pagestyle{fancybook}
+
+\usepackage[titletoc]{appendix}
+
+% Only show chapters, sections, and subsections in TOC (not subsubsections)
+\setcounter{tocdepth}{1}
+
+\title{\bf Reinforcement Learning: From Foundations to Frontiers}    % Supply information
+\author{Peter Henderson}              %   for the title page.
+\date{\today}                           %   Use current date. 
+
+% Note that book class by default is formatted to be printed back-to-back.
+\begin{document}                        % End of preamble, start of text.
+\frontmatter                            % only in book class (roman page #s)
+\maketitle                              % Print title page.
+{\hypersetup{linkcolor=black}
+\tableofcontents
+}        % Print table of contents
+\mainmatter                             % only in book class (arabic page #s)
+
+\section*{Preface}  
+\addcontentsline{toc}{section}{Preface}
+\sectionmark{Preface}
+
+\input{chapters/00_preface}
+
+\section*{Notation}
+\addcontentsline{toc}{section}{Notation}
+\sectionmark{Notation} 
+
+\input{chapters/A_notation_checklist}
+
+\pagebreak
+
+\input{chapters/00_intro_rl}
+
+\bibliographystyle{plainnat} 
+\bibliography{references}
+
+\end{document}                          %  
